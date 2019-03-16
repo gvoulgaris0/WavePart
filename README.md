@@ -5,11 +5,8 @@ Set of Matlab(r) functions for the partition of directional wave spectra to its 
 Authors:
 
 Douglas Cahl and George Voulgaris
-
 School of the Earth, Ocean and Environment
-
 University of South Carolina
-
 Columbia, SC, 29205, USA.
 
 Relevant References:
