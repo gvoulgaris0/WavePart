@@ -7,19 +7,19 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 % After this, wildpoint removal and smoothing is applied to the frequency
 % and direction calculations. See windlimit.m for more information.
 %
-% Inputs
-%     t      - array of time values
-%     freq   - frequency array of spectrum (Hz)
-%     dir    - direction array of spectrum (degrees)
-%     S      - timeseries of 2-D wave spectral energies S(freq,dir,time)
-%     swplot - >0 show plot of analysis
+%% Inputs
+%  t      - array of time values
+%  freq   - frequency array of spectrum (Hz)
+%  dir    - direction array of spectrum (degrees)
+%  S      - timeseries of 2-D wave spectral energies S(freq,dir,time)
+%  swplot - >0 show plot of analysis
 %
-% Output
-%     fw   - lowest frequency of wind-induced waves (Hz, filtered+smoothed)
-%     dw   - direction at peak wind wave energy (degrees, math orientation)  
+%% Output
+%  fw   - lowest frequency of wind-induced waves (Hz, filtered+smoothed)
+%  dw   - direction at peak wind wave energy (degrees, math orientation)  
 %
-% Uses
-%     windlmit.m
+%% Uses
+%  windlmit.m
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -43,7 +43,7 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-%
+%% Main Function
 %% run analysis on each wave spectrum
 N   = length(t);  % length of timeseries
 Fw  = zeros(1,N); % wind wave frequency lower limit (Hz)
@@ -131,4 +131,5 @@ if swplot > 0
     lg = legend('Sth','dw');
     lg.Color     = [0.1 0.1 0.1]; % white text on legend
     lg.TextColor = [1.0 1.0 1.0]; % black legend background
+end
 end

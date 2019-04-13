@@ -8,24 +8,21 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  the mean and other parameters as described in Hanson and Phillips (2001)
 %  (see Appendix therein).
 %
-%  Inputs
-%   E    = Directional Wave energy density (m2/Hz/deg)
-%   freq = frequency array of spectral estimates (Hz)
-%   dir  = direction array of spectral estimates (degs)
-%   AA   = Matrix same dimensions as E indentifying partition element by a
-%          number.
-%   h    = water depth [Optional]
+%% Inputs
+%  E    = Directional Wave energy density (m2/Hz/deg)
+%  freq = frequency array of spectral estimates (Hz)
+%  dir  = direction array of spectral estimates (degs)
+%  AA   = Matrix same dimensions as E indentifying partition element by a number.
+%  h    = water depth [Optional]
 %
-%  Outputs
-%   f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
-%   D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional
-%                          spead of each partition n
-%   Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%   H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%% Outputs
+%  f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
+%  D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
+%  Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
+%  H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
 %
-%  Uses 
-%   dispersion.m  - function to solve the dispersion equation for shallow
-%                   waters
+%% Uses 
+%  dispersion.m  - function to solve the dispersion equation for shallow waters
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -49,6 +46,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
+%% Main Function
 if nargin<5 || isempty(h)
     h=1000;   % Deep water conditions
 end
@@ -88,4 +86,5 @@ for i = 1:Nw1                                 % for each partition i
     Lp      = 2*pi/(kh/h);
     psi     = Hsig/Lp;                        % Significant slope (Huang 1986)
     H(1:3,i)= [Hrms,Hsig,psi];
+end
 end

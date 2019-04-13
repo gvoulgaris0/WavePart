@@ -6,15 +6,13 @@ function df2 = peakspread(freq,theta,E,mask)
 % Function to find the normalized spreading of each partition 
 % as in eqn (7) in Hanson and Phillips 2001
 % 
-% Inputs:
-%
+%% Inputs:
 %  freq         = frequency array (1:nf)
 %  theta        = direction array (1:nd)
 %  E(nf,nd)     = the 2-D directional spectrum of the partition (i.e, Ep=E*Mask).
 %  mask(nf,nd)  = array of 0s and 1s where the partition =1
 %
-% Output:
-%
+%% Output:
 %  df2          = squared spreading parameter \delta f^2
 %
 %% Authors

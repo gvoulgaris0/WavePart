@@ -11,31 +11,30 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 % Hanson and Phillips (2001) Automated Analysis of Ocean Surface Directional
 % Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.
 %
-% Inputs
-%   freq  - Frequency array of directional spectrum (Hz)
-%   dir   - Directional array of spectrum (degs)
-%   E     - Directional wave spectral density m2/Hz/deg
-%   wfc   - (optional) (=1) only keep wind partitions within wind band
-%   fw    - (optional) wind frequency lower limit (Hz), ex. 0.8*fpeak of wind
-%   sw    - (optional) switch to plot (only if sw=999)
+%% Inputs
+%  freq  - Frequency array of directional spectrum (Hz)
+%  dir   - Directional array of spectrum (degs)
+%  E     - Directional wave spectral density m2/Hz/deg
+%  wfc   - (optional) (=1) only keep wind partitions within wind band
+%  fw    - (optional) wind frequency lower limit (Hz), ex. 0.8*fpeak of wind
+%  sw    - (optional) switch to plot (only if sw=999)
 %
-% Outputs
-%   AA    - Matrix indicating the partition each E(f,theta)value belongs to
-%           =0 is the noise, =1 is the wind partition, >=2 are the swell partitions in
-%           descending order of energy, an example with 2 swell partitions
-%           Partition Number ; Partition type
-%                          0 ; Noise
-%                          1 ; Wind
-%                          2 ; largest (Hsig) swell partition
-%                          3 ; 2nd largest Swell partition 
-%   Ef    - Smoothed energy matrix used for partition calculations,
+%% Outputs
+%  AA    - Matrix indicating the partition each E(f,theta)value belongs to
+%          =0 is the noise, =1 is the wind partition, >=2 are the swell partitions in
+%          descending order of energy, an example with 2 swell partitions
+%          Partition # - Partition type
+%                    0 - Noise
+%                    1 - Wind waves
+%                    2 - First (more energetic) swell partition
+%                    3 - Second (less energetic) swell partition 
+%  Ef    - Smoothed energy matrix used for partition calculations,
 %           
-%
-%  Uses
-%   filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
-%   peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips (2001)
-%   valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
-%   polarPcolor.m       - pcolor in polar coordinates developed by E. Cheynet (2019).
+%% Uses
+%  filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
+%  peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips (2001)
+%  valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
+%  polarPcolor.m       - pcolor in polar coordinates developed by E. Cheynet (2019).
 %                         (https://www.mathworks.com/matlabcentral/fileexchange/49040-pcolor-in-polar-coordinates)
 %                         MATLAB Central File Exchange. Retrieved March 16, 2019.
 %
@@ -61,7 +60,7 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-
+%% Main Function
 if nargin<6 || isempty(sw)
     sw = 10;
 end
@@ -108,7 +107,7 @@ Ef = filterDirWavespec(E,2,navg);
 %
 %% STEP 2: Identify all partitions possible
 %
-% AA = watershed_ww3(Ef); % WW3 watershed algorithm
+% AA = watershed_ww3(Ef); % WW3 watershed algorithm function (using mex is faster)
 AA      = watershed_ww3_mex(Ef); % WW3 watershed algorithm (suggested mex)
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   % number of partitions identified
@@ -241,7 +240,6 @@ for i  = 2:max(max(AA))
     end
 end
 AA  = BB;
-% ------------- end merge
 %
 %% STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e <= A/(fp^4+B))
 %

@@ -3,16 +3,16 @@ function Ew = filterDirWavespec(E,nc,n)
 %% 
 %  Function used to apply a 2-D moving averaging filter on a matrix
 %  representing directional spectrum. The objective is to allow that the
-%  two direction ends converge from 0 to 360 degs and vice versa similarly
-%  to repeat in boundary conditions in numerical modeling.
+%  two direction ends converge from 0 to 360 degs and vice versa. It is similar
+%  to repeated boundary conditions in numerical modeling.
 %
-%  Inputs
+%% Inputs
 %    E  = matrix to be convoluted
 %    nc = number of convolutions (default = 1)
 %    n  = size of convolution window (default = 3)
 %
-%  Output
-%    Ew = filtered matrix E of the same dimensions
+%% Output
+%  Ew = filtered matrix E of the same dimensions
 %
 %  E =
 %  |------------------------------|
@@ -28,7 +28,7 @@ function Ew = filterDirWavespec(E,nc,n)
 %
 %   with n=5, becomes
 %
-%  E2 =
+%  Ew =
 %  -20 -30 -3 -2  1  1  1  1 -20 -30 -3 -2
 %  -20 -30 -3 -2  1  1  1  1 -20 -30 -3 -2
 %  -20 -30 -3 -2  1  1  1  1 -20 -30 -3 -2
@@ -62,6 +62,7 @@ function Ew = filterDirWavespec(E,nc,n)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
+%% Main Function
 if nargin<2
     n=3; nc=1;
 end
@@ -72,9 +73,10 @@ if mod(n,2)== 0   % Even number
     n=n+1;        % Make it odd
 end
 W=ones(n,n)/(n^2); % n x n normalized window to be used
-%[nf,nd]=size(E);  % size of the 2-d matrix array representing directional spectra
-% nf = no of freq. bins, nd = no of direction bins
+% [nf,nd]=size(E); % size of the 2-d matrix array representing directional spectra
+                   % nf = no of freq. bins, nd = no of direction bins
 mn = floor(n/2);   % size of extra columns / rows the window will create
+%
 % repeat the 1st and last frequency columns at the start and end
 %
 E1 = [repmat(E(1,:),mn,1); E; repmat(E(end,:),mn,1) ];

@@ -1,19 +1,20 @@
 %% windlimit.m
 function [Fw,Fwpk] = windlimit(f,Sf,n)
+% [Fw,Fwpk] = windlimit(f,Sf,n)
 %
-% Function that estimates the lower frequency limit of the wind wave
-% spectra directly from the 2-D wave spectrum when no wind estimate is
-% available. It assumes that the wind spectra follows an f^-n (n=3 or 4,
-% default = 4) roll-off pattern. 
+% Function that estimates the lower frequency limit of the wind wave spectra
+% directly from the 2-D wave spectrum when no wind estimate is available. 
+% It assumes that the wind spectra follows an f^-n (n=3 or 4, default = 4) 
+% roll-off pattern. 
 %
-% Inputs
-%     f  - frequency array of spectrum (Hz)
-%     Sf - Spectral energy
-%     n  - roll-off energy exponent (default n=4)
+%% Inputs
+%  f   - frequency array of spectrum (Hz)
+%  Sf  - Spectral energy
+%  n   - roll-off energy exponent (default n=4)
 %
-% Output
-%     Fw   - lowest frequency of wind-induced waves
-%     Fwpk - frequency of wind wave peak energy 
+%% Output
+%  Fw   - lowest frequency of wind-induced waves
+%  Fwpk - frequency of wind wave peak energy 
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -37,11 +38,12 @@ function [Fw,Fwpk] = windlimit(f,Sf,n)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-%% find Fw, lowest frequency of wind-induced waves
+%% Main Function
+%% Find Fw, lowest frequency of wind-induced waves
 if nargin<3
     n=4;
 end
-% searches for wind peaks within [fmin fmax] for more accurate estimates of
+% Searches for wind peaks within [fmin fmax] for more accurate estimates of
 % cutoff, these do not have to be exact, but should be above the swell
 % frequency ranges
 f1 = 0.35;                      % Lower freq of initial wind range

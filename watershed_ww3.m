@@ -9,15 +9,15 @@ function AA = watershed_ww3(E)
 % The function uses 8-connected neighborhood points to identify the
 % watersheds and allows for continuity between the boundaries.
 %
-% Input
-%   E - 2D energy spectrum E(freq,Dir)
+%% Input
+%  E - 2D energy spectrum E(freq,Dir)
 %
-% Output
-%   AA(N-freq,M-dir) - watershed partition number
-%   Np               - Total number of partitions
+%% Output
+%  AA(N-freq,M-dir) - watershed partition number
+%  Np               - Total number of partitions
 %
 %% Uses
-%   nextmax.m - internal function
+%  nextmax.m - internal function
 %
 %% Authors
 %  Douglas Cahl
@@ -41,6 +41,7 @@ function AA = watershed_ww3(E)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
+%% Main Function
 AA     = zeros(size(E));    % peak matrix
 [N,M]  = size(E);
 pi     = nan(length(E(:)),1);
@@ -88,7 +89,7 @@ for i = 1:N     % for each frequency
     end
 end
 end
-% subroutine
+%% Internal function nextmax.m
 function [i1,j1,flat] = nextmax(E,i,j)
 N       = size(E,1);
 M       = size(E,2);

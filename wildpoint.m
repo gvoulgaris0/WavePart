@@ -1,19 +1,21 @@
 %% wildpoint.m
-function y = wildpoint(x,const)
+function y = wildpoint(x,nn)
+% y = wildpoint(x,nn)
 %
-% Wildpoint removal funtcion. If a point in the data series "x" differs to 
-% its median from the surrounding 5 points by more than "const" times the 
-% standard deviation of the surrounding 5 points, it is replaced by a NaN
+% Wildpoint removal function. 
+% If the value of point in the data series "x" differs by a value greater than
+% nn x std from the median of the surrounding 4 points (2 on either side of it)
+% it is replaced by a NaN
 %
-% y = wildpoint(x,const)
-% 
-% Inputs:   x           = data series
-%           const       = how many standard deviations as threshold
+%% Inputs:   
+%  x  = data series
+%  nn = defines threshold (how many standard deviations)
 %
-% Output:   y           = wildpoint cleaned data series
+%% Output:
+%  y  = wildpoint cleaned data series
 %
 %% Authors
-%  Douglas Cahl and George Voulgaris
+%  George Voulgaris
 %  School of the Earth, Ocean and Environment
 %  University of South Carolina, Columbia, SC, USA
 %
@@ -34,15 +36,16 @@ function y = wildpoint(x,const)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
-n = length(x); % length of data series
-y = x;         % preallocate y
+%% Main Function
+n = length(x);                   % length of data series
+y = x;                           % preallocate y
 for i = 1:n
-    i1 = max(1,i-2);
-    i2 = min(n,i+2);
-    y(i) = median(x(i1:i2)); % 5 pt window median
+    i1 = max(1,i-2);             % 2 points before
+    i2 = min(n,i+2);             % 2 points after
+    y(i) = median(x(i1:i2));     % 5 pt window median
 end
-xdiff       = abs(x - y);         % difference to median
-xstd        = std(x);             % std of window
-i_wild      = xdiff > xstd*const; % difference exceeeds threshold 
-y(i_wild)   = nan;                % replace wildpoints with NaNs
+xdiff      = abs(x - y);         % difference to median
+xstd       = std(x);             % std of window
+i_wild     = xdiff > xstd*nn;    % difference exceeeds threshold (nn*std)
+y(i_wild)  = nan;                % replace wildpoints with NaNs
 end
