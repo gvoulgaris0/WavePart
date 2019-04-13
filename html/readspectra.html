@@ -1,0 +1,308 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>readspectra</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-12"><meta name="DC.source" content="readspectra.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">readspectra.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Output</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Authors</a></li><li><a href="#7">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#8">Main Function</a></li><li><a href="#9">run analysis on each wave spectrum</a></li><li><a href="#10">wildpoint removal and smoothing</a></li><li><a href="#11">plot</a></li></ul></div><h2 id="1">readspectra.m</h2><pre class="codeinput"><span class="keyword">function</span> [fw,dw] = readspectra(t,freq,dir,S,swplot)
+</pre><pre class="codeinput"><span class="comment">%</span>
+<span class="comment">% Function that estimates the lower frequency limit of the wind wave</span>
+<span class="comment">% spectra directly from a timeseries of 2-D wave spectra. For each wave</span>
+<span class="comment">% spectrum, windlimit.m calculates the cutoff frequency and direction.</span>
+<span class="comment">% After this, wildpoint removal and smoothing is applied to the frequency</span>
+<span class="comment">% and direction calculations. See windlimit.m for more information.</span>
+<span class="comment">%</span>
+</pre><h2 id="3">Inputs</h2><pre>t      - array of time values
+freq   - frequency array of spectrum (Hz)
+dir    - direction array of spectrum (degrees)
+S      - timeseries of 2-D wave spectral energies S(freq,dir,time)
+swplot - &gt;0 show plot of analysis</pre><h2 id="4">Output</h2><pre>fw   - lowest frequency of wind-induced waves (Hz, filtered+smoothed)
+dw   - direction at peak wind wave energy (degrees, math orientation)</pre><h2 id="5">Uses</h2><pre>windlmit.m</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
+School of the Earth, Ocean and Environment
+University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="8">Main Function</h2><h2 id="9">run analysis on each wave spectrum</h2><pre class="codeinput">N   = length(t);  <span class="comment">% length of timeseries</span>
+Fw  = zeros(1,N); <span class="comment">% wind wave frequency lower limit (Hz)</span>
+Dpk = zeros(1,N); <span class="comment">% direction (degrees) at peak wind wave energy (f&gt;Fw)</span>
+Sf  = zeros(length(freq),N); <span class="comment">% frequency spectrum</span>
+Sth = zeros(length(dir),N);  <span class="comment">% direction specturm</span>
+<span class="keyword">for</span> i = 1:length(t)
+        E    = S(:,:,i);
+        Sf(:,i)=conv(sum(E,2),[1 1 1 1 1]/5,<span class="string">'same'</span>);  <span class="comment">% 5pt smoothed frequency spectrum</span>
+        Sth(:,i)=conv(sum(E,1),[1 1 1 1 1]/5,<span class="string">'same'</span>); <span class="comment">% 5pt smoothed direction spectrum</span>
+        [Fw(i),Fwpk] = windlimit(freq,Sf(:,i),4);
+        j = freq==Fwpk;
+        Sdir = E(j,:);      <span class="comment">% direction spectrum at peak wind frequency</span>
+        [~,k] = max(Sdir);
+        Dpk(i) = dir(k);    <span class="comment">% direction at peak frequency</span>
+<span class="keyword">end</span>
+<span class="comment">%</span>
+</pre><h2 id="10">wildpoint removal and smoothing</h2><pre class="codeinput">Const = 1; <span class="comment">% how many stds in the 5pt median sort for wildpints remove</span>
+mvpt  = 15; <span class="comment">% moving mean of window this wide for final result</span>
+<span class="comment">% frequency (fw)</span>
+fw=wildpoint(Fw,Const);
+fw=wildpoint(fw,Const);
+j = ~isnan(fw);
+fw = interp1(t(j),fw(j),t); <span class="comment">% interp over nans</span>
+fw = movmean(fw,mvpt); <span class="comment">% moving average</span>
+fw = movmean(fw,mvpt); <span class="comment">% moving average</span>
+<span class="comment">% direction (dw)</span>
+D = Dpk;
+D(~j) = nan;
+Dx = cosd(D);
+Dy = sind(D);
+Dx = interp1(t(j),Dx(j),t); <span class="comment">% interp over nans</span>
+Dy = interp1(t(j),Dy(j),t); <span class="comment">% interp over nans</span>
+Dx = movmean(Dx,mvpt);
+Dx = movmean(Dx,mvpt); <span class="comment">% moving average</span>
+Dy = movmean(Dy,mvpt);
+Dy = movmean(Dy,mvpt); <span class="comment">% moving average</span>
+dw = atan2d(Dy,Dx);
+<span class="comment">%</span>
+</pre><h2 id="11">plot</h2><pre class="codeinput"><span class="keyword">if</span> swplot &gt; 0
+    figure
+    <span class="comment">% fw</span>
+    subplot(221)
+    plot(t(j),Fw(j),<span class="string">'.'</span>)
+    hold <span class="string">on</span>
+    plot(t(~j),Fw(~j),<span class="string">'x'</span>)
+    plot(t,fw,<span class="string">'-k'</span>,<span class="string">'linewidth'</span>,2)
+    legend([<span class="string">'good '</span> num2str(sum(j)) ],<span class="keyword">...</span>
+        [<span class="string">'removed '</span> num2str(sum(~j))],<span class="keyword">...</span>
+        [num2str(mvpt) <span class="string">' pt avg'</span>])
+    ylabel(<span class="string">'freq (Hz'</span>)
+    datetick(<span class="string">'x'</span>,<span class="string">'keeplimits'</span>)
+    title(<span class="string">'wind wave low freq (fw)'</span>)
+    <span class="comment">% dw</span>
+    subplot(222)
+    plot(t(j),Dpk(j),<span class="string">'.'</span>)
+    hold <span class="string">on</span>
+    plot(t(~j),Dpk(~j),<span class="string">'x'</span>)
+    plot(t,dw,<span class="string">'-k'</span>,<span class="string">'linewidth'</span>,2)
+    legend(<span class="string">'good'</span>,<span class="string">'removed'</span>,[num2str(mvpt) <span class="string">' pt avg'</span>])
+    ylabel(<span class="string">'deg (math)'</span>)
+    datetick(<span class="string">'x'</span>,<span class="string">'keeplimits'</span>)
+    title(<span class="string">'wind dir at peak wind energy (dw)'</span>)
+    <span class="comment">% Sf</span>
+    subplot(223)
+    pcolor(t,freq,log10(Sf))
+    shading <span class="string">interp</span>
+    hold <span class="string">on</span>
+    plot(t,fw,<span class="string">'w-'</span>)
+    ylabel(<span class="string">'wave freq (Hz)'</span>)
+    datetick(<span class="string">'x'</span>,<span class="string">'keeplimits'</span>)
+    lg = legend(<span class="string">'Sf'</span>,<span class="string">'fw'</span>);
+    lg.Color     = [0.1 0.1 0.1]; <span class="comment">% white text on legend</span>
+    lg.TextColor = [1.0 1.0 1.0]; <span class="comment">% black legend background</span>
+    <span class="comment">% Sth</span>
+    subplot(224)
+    pcolor(t,dir,log10(Sth))
+    shading <span class="string">interp</span>
+    hold <span class="string">on</span>
+    plot(t,dw,<span class="string">'w-'</span>)
+    ylabel(<span class="string">'wave dir deg (math)'</span>)
+    datetick(<span class="string">'x'</span>,<span class="string">'keeplimits'</span>)
+    lg = legend(<span class="string">'Sth'</span>,<span class="string">'dw'</span>);
+    lg.Color     = [0.1 0.1 0.1]; <span class="comment">% white text on legend</span>
+    lg.TextColor = [1.0 1.0 1.0]; <span class="comment">% black legend background</span>
+<span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% readspectra.m
+function [fw,dw] = readspectra(t,freq,dir,S,swplot)
+%
+% Function that estimates the lower frequency limit of the wind wave
+% spectra directly from a timeseries of 2-D wave spectra. For each wave
+% spectrum, windlimit.m calculates the cutoff frequency and direction.
+% After this, wildpoint removal and smoothing is applied to the frequency
+% and direction calculations. See windlimit.m for more information.
+%
+%% Inputs
+%  t      - array of time values
+%  freq   - frequency array of spectrum (Hz)
+%  dir    - direction array of spectrum (degrees)
+%  S      - timeseries of 2-D wave spectral energies S(freq,dir,time)
+%  swplot - >0 show plot of analysis
+%
+%% Output
+%  fw   - lowest frequency of wind-induced waves (Hz, filtered+smoothed)
+%  dw   - direction at peak wind wave energy (degrees, math orientation)  
+%
+%% Uses
+%  windlmit.m
+%
+%% Authors
+%  Douglas Cahl and George Voulgaris
+%  School of the Earth, Ocean and Environment
+%  University of South Carolina, Columbia, SC, USA
+%
+%% Copyright 2019 Douglas Cahl, George Voulgaris
+%
+% This file is part of WavePart.
+%
+% WavePart is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%
+%% Main Function
+%% run analysis on each wave spectrum
+N   = length(t);  % length of timeseries
+Fw  = zeros(1,N); % wind wave frequency lower limit (Hz)
+Dpk = zeros(1,N); % direction (degrees) at peak wind wave energy (f>Fw)
+Sf  = zeros(length(freq),N); % frequency spectrum
+Sth = zeros(length(dir),N);  % direction specturm
+for i = 1:length(t)
+        E    = S(:,:,i);
+        Sf(:,i)=conv(sum(E,2),[1 1 1 1 1]/5,'same');  % 5pt smoothed frequency spectrum
+        Sth(:,i)=conv(sum(E,1),[1 1 1 1 1]/5,'same'); % 5pt smoothed direction spectrum
+        [Fw(i),Fwpk] = windlimit(freq,Sf(:,i),4);
+        j = freq==Fwpk; 
+        Sdir = E(j,:);      % direction spectrum at peak wind frequency
+        [~,k] = max(Sdir); 
+        Dpk(i) = dir(k);    % direction at peak frequency
+end
+%
+%% wildpoint removal and smoothing
+Const = 1; % how many stds in the 5pt median sort for wildpints remove
+mvpt  = 15; % moving mean of window this wide for final result
+% frequency (fw)
+fw=wildpoint(Fw,Const);
+fw=wildpoint(fw,Const);
+j = ~isnan(fw);
+fw = interp1(t(j),fw(j),t); % interp over nans
+fw = movmean(fw,mvpt); % moving average
+fw = movmean(fw,mvpt); % moving average
+% direction (dw)
+D = Dpk;
+D(~j) = nan;
+Dx = cosd(D);
+Dy = sind(D);
+Dx = interp1(t(j),Dx(j),t); % interp over nans
+Dy = interp1(t(j),Dy(j),t); % interp over nans
+Dx = movmean(Dx,mvpt);
+Dx = movmean(Dx,mvpt); % moving average
+Dy = movmean(Dy,mvpt);
+Dy = movmean(Dy,mvpt); % moving average
+dw = atan2d(Dy,Dx);
+%
+%% plot
+if swplot > 0
+    figure
+    % fw
+    subplot(221) 
+    plot(t(j),Fw(j),'.')
+    hold on
+    plot(t(~j),Fw(~j),'x')
+    plot(t,fw,'-k','linewidth',2)
+    legend(['good ' num2str(sum(j)) ],...
+        ['removed ' num2str(sum(~j))],...
+        [num2str(mvpt) ' pt avg'])
+    ylabel('freq (Hz')
+    datetick('x','keeplimits')
+    title('wind wave low freq (fw)')
+    % dw
+    subplot(222) 
+    plot(t(j),Dpk(j),'.')
+    hold on
+    plot(t(~j),Dpk(~j),'x')
+    plot(t,dw,'-k','linewidth',2)
+    legend('good','removed',[num2str(mvpt) ' pt avg'])
+    ylabel('deg (math)')
+    datetick('x','keeplimits')
+    title('wind dir at peak wind energy (dw)')
+    % Sf
+    subplot(223) 
+    pcolor(t,freq,log10(Sf))
+    shading interp
+    hold on
+    plot(t,fw,'w-')
+    ylabel('wave freq (Hz)')
+    datetick('x','keeplimits')
+    lg = legend('Sf','fw');
+    lg.Color     = [0.1 0.1 0.1]; % white text on legend
+    lg.TextColor = [1.0 1.0 1.0]; % black legend background
+    % Sth
+    subplot(224)
+    pcolor(t,dir,log10(Sth))
+    shading interp
+    hold on
+    plot(t,dw,'w-')
+    ylabel('wave dir deg (math)')
+    datetick('x','keeplimits')
+    lg = legend('Sth','dw');
+    lg.Color     = [0.1 0.1 0.1]; % white text on legend
+    lg.TextColor = [1.0 1.0 1.0]; % black legend background
+end
+end
+##### SOURCE END #####
+--></body></html>

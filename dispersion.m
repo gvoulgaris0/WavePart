@@ -1,3 +1,4 @@
+%% dispersion.m
 function kh=dispersion(const)
 %%
 % Solution of the linear dispersion relationship for surface gravity waves.
@@ -10,19 +11,21 @@ function kh=dispersion(const)
 %  kh = dispersion(const)
 %
 %% Input:
-% const = vector of omega^2*h/g
-% where omega = radian frequency,
-%           h = water depth,
-%           g = acceleration due to gravity, and
+%  const = vector of omega^2*h/g
+%      where omega = radian frequency,
+%                h = water depth,
+%                g = acceleration due to gravity, and
 %
 %% Output:
 %  kh = vector of k*h
-%  where k = wavenumber.
+%       where k = wavenumber.
 %
 %% Authors
 %  George Voulgaris
 %  School of the Earth, Ocean and Environment
 %  University of South Carolina, Columbia, SC, USA
+%
+%  based on a function first developed by John Trowbridge (WHOI) circa 1999
 %
 %% Copyright 2019 George Voulgaris
 %

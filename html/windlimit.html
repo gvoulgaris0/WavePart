@@ -1,0 +1,188 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>windlimit</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-12"><meta name="DC.source" content="windlimit.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">windlimit.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Output</a></li><li><a href="#5">Authors</a></li><li><a href="#6">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#7">Main Function</a></li><li><a href="#8">Find Fw, lowest frequency of wind-induced waves</a></li><li><a href="#9">Find Fwpd frequency of wind wave peak energy - in frequency range (f&gt;Fw)</a></li></ul></div><h2 id="1">windlimit.m</h2><pre class="codeinput"><span class="keyword">function</span> [Fw,Fwpk] = windlimit(f,Sf,n)
+</pre><pre class="codeinput"><span class="comment">% [Fw,Fwpk] = windlimit(f,Sf,n)</span>
+<span class="comment">%</span>
+<span class="comment">% Function that estimates the lower frequency limit of the wind wave spectra directly from the 2-D wave spectrum when no wind estimate is</span>
+<span class="comment">% available. It assumes that the wind spectra follows an f^-n (n=3 or 4, default = 4) roll-off pattern.</span>
+<span class="comment">%</span>
+</pre><h2 id="3">Inputs</h2><pre>f   - frequency array of spectrum (Hz)
+Sf  - Spectral energy
+n   - roll-off energy exponent (default n=4)</pre><h2 id="4">Output</h2><pre>Fw   - lowest frequency of wind-induced waves
+Fwpk - frequency of wind wave peak energy</pre><h2 id="5">Authors</h2><pre>Douglas Cahl and George Voulgaris
+School of the Earth, Ocean and Environment
+University of South Carolina, Columbia, SC, USA</pre><h2 id="6">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="7">Main Function</h2><h2 id="8">Find Fw, lowest frequency of wind-induced waves</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;3
+    n=4;
+<span class="keyword">end</span>
+<span class="comment">% Searches for wind peaks within [fmin fmax] for more accurate estimates of</span>
+<span class="comment">% cutoff, these do not have to be exact, but should be above the swell</span>
+<span class="comment">% frequency ranges</span>
+f1 = 0.35;                      <span class="comment">% Lower freq of initial wind range</span>
+f2 = 0.70;                      <span class="comment">% Upper freq of initial wind range</span>
+df = f(2)-f(1);                 <span class="comment">% Frequency resolution</span>
+S  = Sf/(sum(Sf)*df);           <span class="comment">% Normalise the spectrum by total variance</span>
+iw = find(f&gt;=f1 &amp; f&lt;=f2);       <span class="comment">% Identify freq. range representing wind</span>
+yni = log10(S(iw).*f(iw).^n);   <span class="comment">% estimate S(f)*f^n</span>
+ain = polyfit(f(iw),yni,1);     <span class="comment">% fit a line on initial wind range</span>
+Sn  = polyval(ain,f);           <span class="comment">% fitted line</span>
+S10 = log10(S.*f.^n);           <span class="comment">% Log10 of fitted line</span>
+Dev = (S10(2:end)-Sn(2:end));   <span class="comment">% Absolute value of deviation from S(f)*f^n</span>
+Varw= std(Dev(iw));             <span class="comment">% std of deviation in the initial wind range</span>
+Limw= mean(Dev(iw));            <span class="comment">% Mean value of deviation over the initial wind range</span>
+LIM = Limw-3*Varw;              <span class="comment">% difference between mean and 3*std</span>
+X = cumsum(Dev-LIM);            <span class="comment">% cumsum of deviation - LUM</span>
+if1 = find(f&gt;f2,1);             <span class="comment">% index of upper initial wind range, f2</span>
+[~,ik]=min(X(1:if1));           <span class="comment">% look for wind minimum up to f2</span>
+<span class="keyword">if</span> isempty(ik)
+    ik=1;                       <span class="comment">% if no min, return lowest frequency index</span>
+<span class="keyword">end</span>
+Fw  = f(ik);                    <span class="comment">% Fw, lowest frequency of wind-induced waves</span>
+<span class="comment">%</span>
+</pre><h2 id="9">Find Fwpd frequency of wind wave peak energy - in frequency range (f&gt;Fw)</h2><pre class="codeinput">i = f &gt; Fw;
+S1 = S.*i;
+[~,i] = max(S1);
+Fwpk = f(i);                    <span class="comment">% frequency at peak wind wave energy</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% windlimit.m
+function [Fw,Fwpk] = windlimit(f,Sf,n)
+% [Fw,Fwpk] = windlimit(f,Sf,n)
+%
+% Function that estimates the lower frequency limit of the wind wave spectra directly from the 2-D wave spectrum when no wind estimate is
+% available. It assumes that the wind spectra follows an f^-n (n=3 or 4, default = 4) roll-off pattern. 
+%
+%% Inputs
+%  f   - frequency array of spectrum (Hz)
+%  Sf  - Spectral energy
+%  n   - roll-off energy exponent (default n=4)
+%
+%% Output
+%  Fw   - lowest frequency of wind-induced waves
+%  Fwpk - frequency of wind wave peak energy 
+%
+%% Authors
+%  Douglas Cahl and George Voulgaris
+%  School of the Earth, Ocean and Environment
+%  University of South Carolina, Columbia, SC, USA
+%
+%% Copyright 2019 Douglas Cahl, George Voulgaris
+%
+% This file is part of WavePart.
+%
+% WavePart is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <https://www.gnu.org/licenses/>.
+%
+%% Main Function
+%% Find Fw, lowest frequency of wind-induced waves
+if nargin<3
+    n=4;
+end
+% Searches for wind peaks within [fmin fmax] for more accurate estimates of
+% cutoff, these do not have to be exact, but should be above the swell
+% frequency ranges
+f1 = 0.35;                      % Lower freq of initial wind range
+f2 = 0.70;                      % Upper freq of initial wind range
+df = f(2)-f(1);                 % Frequency resolution
+S  = Sf/(sum(Sf)*df);           % Normalise the spectrum by total variance
+iw = find(f>=f1 & f<=f2);       % Identify freq. range representing wind
+yni = log10(S(iw).*f(iw).^n);   % estimate S(f)*f^n
+ain = polyfit(f(iw),yni,1);     % fit a line on initial wind range
+Sn  = polyval(ain,f);           % fitted line
+S10 = log10(S.*f.^n);           % Log10 of fitted line
+Dev = (S10(2:end)-Sn(2:end));   % Absolute value of deviation from S(f)*f^n
+Varw= std(Dev(iw));             % std of deviation in the initial wind range
+Limw= mean(Dev(iw));            % Mean value of deviation over the initial wind range
+LIM = Limw-3*Varw;              % difference between mean and 3*std
+X = cumsum(Dev-LIM);            % cumsum of deviation - LUM
+if1 = find(f>f2,1);             % index of upper initial wind range, f2
+[~,ik]=min(X(1:if1));           % look for wind minimum up to f2
+if isempty(ik)
+    ik=1;                       % if no min, return lowest frequency index
+end
+Fw  = f(ik);                    % Fw, lowest frequency of wind-induced waves
+%
+%% Find Fwpd frequency of wind wave peak energy - in frequency range (f>Fw)
+i = f > Fw;
+S1 = S.*i;
+[~,i] = max(S1);
+Fwpk = f(i);                    % frequency at peak wind wave energy
+end
+##### SOURCE END #####
+--></body></html>
