@@ -17,7 +17,7 @@ wfc        = 1;  % wind parabola limits
 const_wind = 0;  % if =1, uses internal windminf = 0.12, if =0 provides 
                   % fw (wind frequency)
 %
-figure('Position',[ 50 50 1600 900])
+figure('Position',[ 50 50 1200 800])
 for i = 1:length(t) % strong wind at 267, complex at 100, 287
     disp(i)
     % wave spectrum for timestep i
@@ -28,7 +28,6 @@ for i = 1:length(t) % strong wind at 267, complex at 100, 287
     else
         [AA,E]=partition(freq,dir,E0,wfc,fw(i)); % windminf = fw(i)
     end
-    np = max(max(AA)); % number of partitions
     % calculate wave parameters for each partition. Er is the percent of
     % energy left in the noise partition (I.e. if Er = 10 that means 10%
     % of the total energy in the spectrum did not get partitioned into wind
@@ -36,17 +35,18 @@ for i = 1:length(t) % strong wind at 267, complex at 100, 287
     % is likely set too high.
     [f{i},D{i},Ep{i},H{i},Er(i)] = waveparamspart(E,freq,dir,AA,h);
     
-    % partitioned energy surf plot
-    clf
-    subplot(121)
-    surf(freq',dir',E',AA')
-    title([datestr(t(i)) '     ' num2str(np) ' partitions'])
-    % pcolor partition plot
-    subplot(122)
-    [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
-    c.Ticks = 0:np; % np ticks
-    colormap(jet(np+1))
-    drawnow
-%     pause
-    return
+%     % partitioned energy surf plot
+%     np = max(max(AA)); % number of partitions
+%     clf
+%     subplot(121)
+%     surf(freq',dir',E',AA')
+%     title([datestr(t(i)) '     ' num2str(np) ' partitions'])
+%     % pcolor partition plot
+%     subplot(122)
+%     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
+%     c.Ticks = 0:np; % np ticks
+%     colormap(jet(np+1))
+%     drawnow
+% %     pause
+%     return
 end
