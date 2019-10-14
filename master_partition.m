@@ -29,7 +29,11 @@ for i = 946:length(t) % strong wind at 267, complex at 100, 287
         [AA,E]=partition(freq,dir,E0,wfc,fw(i)); % windminf = fw(i)
     end
     np = max(max(AA)); % number of partitions
-    % calculate wave parameters for each partition
+    % calculate wave parameters for each partition. Er is the percent (in decimal) of
+    % energy left in the noise partition (I.e. if Er = 0.1 that means 10%
+    % of the total energy in the spectrum did not get partitioned into wind
+    % and swell partitions. If this number is high, the wind frequency, fw,
+    % is likely set too high.
     [f{i},D{i},Ep{i},H{i},Er(i)] = waveparamspart(E,freq,dir,AA,h);
     
     % partitioned energy surf plot
