@@ -14,11 +14,11 @@ fw(fw>0.12) = 0.12; % set maximum wind cutoff (fw = 0.12 Hz)
 %% run partition routine loop
 h          = 30; % water depth in meters
 wfc        = 1;  % wind parabola limits
-const_wind = 1;  % if =1, uses internal windminf = 0.12, if =0 provides 
+const_wind = 0;  % if =1, uses internal windminf = 0.12, if =0 provides 
                   % fw (wind frequency)
 %
-figure('Position',[ 100 100 1600 1000])
-for i = 1:length(t) % strong wind at 267, complex at 100, 287
+figure('Position',[ 50 50 1600 900])
+for i = 946:length(t) % strong wind at 267, complex at 100, 287
     disp(i)
     % wave spectrum for timestep i
     E0   = S(:,:,i);
@@ -30,7 +30,7 @@ for i = 1:length(t) % strong wind at 267, complex at 100, 287
     end
     np = max(max(AA)); % number of partitions
     % calculate wave parameters for each partition
-    [f{i},D{i},Ep{i},H{i}] = waveparamspart(E,freq,dir,AA,h);
+    [f{i},D{i},Ep{i},H{i},Er(i)] = waveparamspart(E,freq,dir,AA,h);
     
     % partitioned energy surf plot
     clf
