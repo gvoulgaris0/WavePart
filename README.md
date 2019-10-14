@@ -2,6 +2,10 @@
 
 Set of Matlab(r) functions for the partition of directional wave spectra to its wind and different swell components. The partitions are initially identified using a watershed defining algorithm  and then are modified following mostly the method described in Hanson and Phillips (2001).
 
+V1.1 October 2019. Corrected the following  errors: (i) in estimation mean period in waveparams.m; (ii) a coding bug in function   valley_min.m; (iii) added diagnostic parameter and number of partitions in waveparams.m
+
+V1.0 April 2019. Original Version
+
 Authors:  
   Douglas Cahl and George Voulgaris  
   School of the Earth, Ocean and Environment  
