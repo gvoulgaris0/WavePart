@@ -18,7 +18,7 @@ const_wind = 0;  % if =1, uses internal windminf = 0.12, if =0 provides
                   % fw (wind frequency)
 %
 figure('Position',[ 50 50 1600 900])
-for i = 946:length(t) % strong wind at 267, complex at 100, 287
+for i = 1:length(t) % strong wind at 267, complex at 100, 287
     disp(i)
     % wave spectrum for timestep i
     E0   = S(:,:,i);
