@@ -7,17 +7,17 @@ load(fn) % t freq dir S(freq,dir,time)
 % 
 %% wind frequency and direction analysis (NCEP_winds = 0)
 % >0 plot timeseries of fw and dw analysis 
-plt1    = 1; 
+plt1    = 0; 
 [fw,dw] = readspectra(t,freq,dir,S,plt1); 
-fw(fw>0.12) = 0.12; % set maximum wind cutoff (fw = 0.12 Hz)
+fw(fw>0.12) = 0.12; % set minimum freq. for wind waves (fw = 0.12 Hz)
 %
 %% run partition routine loop
 h          = 30; % water depth in meters
 wfc        = 1;  % wind parabola limits
-const_wind = 0;  % if =1, uses internal windminf = 0.12, if =0 provides 
+const_wind = 1;  % if =1, uses internal windminf = 0.12, if =0 provides 
                   % fw (wind frequency)
 %
-figure('Position',[ 50 50 1200 800])
+figure('Position',[ 100 100 1600 1000])
 for i = 1:length(t) % strong wind at 267, complex at 100, 287
     disp(i)
     % wave spectrum for timestep i
@@ -28,24 +28,20 @@ for i = 1:length(t) % strong wind at 267, complex at 100, 287
     else
         [AA,E]=partition(freq,dir,E0,wfc,fw(i)); % windminf = fw(i)
     end
-    % calculate wave parameters for each partition. Er is the percent of
-    % energy left in the noise partition (I.e. if Er = 10 that means 10%
-    % of the total energy in the spectrum did not get partitioned into wind
-    % and swell partitions. If this number is high, the wind frequency, fw,
-    % is likely set too high.
-    [f{i},D{i},Ep{i},H{i},Er(i)] = waveparamspart(E,freq,dir,AA,h);
+    % np = max(max(AA)); % number of partitions
+    % calculate wave parameters for each partition
+    [f{i},D{i},Ep{i},H{i},Er(i),Nparts(i)] = waveparamspart(E,freq,dir,AA,h);
     
 %     % partitioned energy surf plot
-%     np = max(max(AA)); % number of partitions
 %     clf
 %     subplot(121)
 %     surf(freq',dir',E',AA')
-%     title([datestr(t(i)) '     ' num2str(np) ' partitions'])
+%     title([datestr(t(i)) '     ' num2str(Nparts(i)) ' partitions'])
 %     % pcolor partition plot
 %     subplot(122)
 %     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
 %     c.Ticks = 0:np; % np ticks
-%     colormap(jet(np+1))
+%     colormap(jet(Nparts(i)+1))
 %     drawnow
 % %     pause
 %     return

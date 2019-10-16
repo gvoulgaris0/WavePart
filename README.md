@@ -2,18 +2,11 @@
 
 Set of Matlab(r) functions for the partition of directional wave spectra to its wind and different swell components. The partitions are initially identified using a watershed defining algorithm  and then are modified following mostly the method described in Hanson and Phillips (2001).
 
-V1.1 October 2019. Corrected the following  errors: (i) in estimation mean period in waveparams.m; (ii) a coding bug in function   valley_min.m; (iii) added diagnostic parameter and number of partitions in waveparams.m
-
-V1.0 April 2019. Original Version
-
 Authors:  
   Douglas Cahl and George Voulgaris  
   School of the Earth, Ocean and Environment  
   University of South Carolina  
-  Columbia, SC, 29205, USA.
-
-Cite as: 
-    --  Douglas, C. and G. Voulgaris, 2019, WavePart: MATLAB(r) software for the partition of directional ocean wave spectra. Zenodo. http://doi.org/10.5281/zenodo.2638500
+  Columbia, SC, 29205, USA.  
 
 Relevant References:  
    -  J.L. Hanson and O.M. Philips, 2001. Automated Analysis of Ocean Surface Directional  Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.   
