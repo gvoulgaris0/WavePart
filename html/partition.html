@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-12"><meta name="DC.source" content="partition.m"><style type="text/css">
+      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-15"><meta name="DC.source" content="partition.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -80,7 +80,10 @@ sw    - (optional) switch to plot (only if sw=999)</pre><h2 id="4">Outputs</h2><
                   1 - Wind waves
                   2 - First (more energetic) swell partition
                   3 - Second (less energetic) swell partition
-Ef    - Smoothed energy matrix used for partition calculations,</pre><h2 id="5">Uses</h2><pre>filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
+Ef    - Smoothed energy matrix used for partition calculations,</pre><h2 id="5">Uses</h2><pre>watreshed_ww3.m     - computes a matrix identifying the watershed
+                      regions of the input matrix (available as a mex
+                      file too for increased computational speed).
+filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
 peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips (2001)
 valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
 polarPcolor.m       - pcolor in polar coordinates developed by E. Cheynet (2019).
@@ -128,7 +131,7 @@ z = 0.4; <span class="comment">% 0.65;    % minimum between peaks EM &gt; z*El w
 <span class="keyword">end</span>
 </pre><h2 id="10">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
 <span class="comment">%</span>
-</pre><h2 id="11">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef); % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
+</pre><h2 id="11">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   <span class="comment">% number of partitions identified</span>
 <span class="comment">% calculate partition parameters</span>
@@ -345,10 +348,10 @@ ic = 1;
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="16">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA)); <span class="comment">% number of partitions</span>
+</pre><h2 id="16">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA));                <span class="comment">% number of partitions</span>
 sumSw   = zeros(N,1);
 Hsig    = fp;
-<span class="keyword">for</span> i=2:N <span class="comment">% only swell partitions</span>
+<span class="keyword">for</span> i=2:N                            <span class="comment">% only swell partitions</span>
     Mask1   = AA == i;
     Sw      = E.*Mask1;
     sumSw(i)= sum(sum(Sw))*df*dth;   <span class="comment">% Energy of partition class i</span>
@@ -358,7 +361,7 @@ Hsig    = fp;
 <span class="keyword">for</span> i = 2:N
     <span class="keyword">if</span> Hsig(i) &lt; swell_hs_lim
         Mask1   = AA == i;
-        AA(Mask1) = 0; <span class="comment">% set to noise</span>
+        AA(Mask1) = 0;               <span class="comment">% set to noise</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 <span class="comment">% Re-number remaining partitions</span>
@@ -368,7 +371,7 @@ ic = 1;
 <span class="keyword">for</span> i  = 2:N
     in = length(find(AA==i));
     <span class="keyword">if</span> in~=0
-        ic    = ic+1;          <span class="comment">% partition counting</span>
+        ic    = ic+1;               <span class="comment">% partition counting</span>
         [j]   = find(AA==i);
         BB(j) = ic;
     <span class="keyword">end</span>
@@ -377,13 +380,13 @@ AA  = BB;
 <span class="comment">%</span>
 </pre><h2 id="17">STEP 8 Re-order partitions in terms of energy level in descending order</h2><p>Partition Number ; Partition type                0 ; Noise                1 ; Wind                2 ; largest (Hsig) swell partition                3 ; 2nd largest Swell partition</p><pre class="codeinput">N = max(max(AA));
 sumSw = zeros(N-1,1);
-<span class="keyword">for</span> i=2:N                          <span class="comment">% for each partition</span>
+<span class="keyword">for</span> i=2:N                              <span class="comment">% for each partition</span>
     Mask1 = AA == i;
     Sw      = E.*Mask1;
     sumSw(i-1)= sum(sum(Sw))*df*dth;   <span class="comment">% Energy of partition class i</span>
 <span class="keyword">end</span>
 <span class="comment">%</span>
-[~,Js] = sort(sumSw,<span class="string">'descend'</span>);  <span class="comment">% Sort according to energy</span>
+[~,Js] = sort(sumSw,<span class="string">'descend'</span>);        <span class="comment">% Sort according to energy</span>
 BB         = AA;
 <span class="keyword">for</span> i=1:N-1
     [j]   = find(AA==Js(i)+1);
@@ -398,9 +401,9 @@ AA=BB;
     title([num2str(Nw2) <span class="string">' partitions'</span>])
     subplot(122)
     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
-    c.Ticks = 1:Nw2; <span class="comment">% np ticks</span>
-    cm = colormap; <span class="comment">% 64 default colors</span>
-    cm = cm(1:64/Nw2:64,:); <span class="comment">% reduce to np colors</span>
+    c.Ticks = 1:Nw2;                  <span class="comment">% np ticks</span>
+    cm = colormap;                    <span class="comment">% 64 default colors</span>
+    cm = cm(1:64/Nw2:64,:);           <span class="comment">% reduce to np colors</span>
     colormap(cm)
 <span class="keyword">end</span>
 <span class="comment">%</span>
@@ -440,6 +443,9 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 %  Ef    - Smoothed energy matrix used for partition calculations,
 %           
 %% Uses
+%  watreshed_ww3.m     - computes a matrix identifying the watershed
+%                        regions of the input matrix (available as a mex
+%                        file too for increased computational speed).
 %  filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
 %  peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips (2001)
 %  valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
@@ -516,7 +522,7 @@ Ef = filterDirWavespec(E,2,navg);
 %
 %% STEP 2: Identify all partitions possible
 %
-% AA = watershed_ww3(Ef); % WW3 watershed algorithm function (using mex is faster)
+% AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)
 AA      = watershed_ww3_mex(Ef); % WW3 watershed algorithm (suggested mex)
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   % number of partitions identified
@@ -744,10 +750,10 @@ end
 AA  = BB;
 %
 %% STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim
-N     = max(max(AA)); % number of partitions
+N     = max(max(AA));                % number of partitions
 sumSw   = zeros(N,1);
 Hsig    = fp;
-for i=2:N % only swell partitions
+for i=2:N                            % only swell partitions
     Mask1   = AA == i;
     Sw      = E.*Mask1;
     sumSw(i)= sum(sum(Sw))*df*dth;   % Energy of partition class i
@@ -757,7 +763,7 @@ end
 for i = 2:N
     if Hsig(i) < swell_hs_lim
         Mask1   = AA == i;
-        AA(Mask1) = 0; % set to noise
+        AA(Mask1) = 0;               % set to noise
     end
 end
 % Re-number remaining partitions
@@ -767,7 +773,7 @@ ic = 1;
 for i  = 2:N
     in = length(find(AA==i));
     if in~=0
-        ic    = ic+1;          % partition counting
+        ic    = ic+1;               % partition counting
         [j]   = find(AA==i);
         BB(j) = ic;
     end
@@ -783,13 +789,13 @@ AA  = BB;
 
 N = max(max(AA));
 sumSw = zeros(N-1,1);
-for i=2:N                          % for each partition
+for i=2:N                              % for each partition
     Mask1 = AA == i;
     Sw      = E.*Mask1;
     sumSw(i-1)= sum(sum(Sw))*df*dth;   % Energy of partition class i
 end
 %
-[~,Js] = sort(sumSw,'descend');  % Sort according to energy
+[~,Js] = sort(sumSw,'descend');        % Sort according to energy
 BB         = AA;
 for i=1:N-1
     [j]   = find(AA==Js(i)+1);
@@ -805,13 +811,12 @@ if sw == 999
     title([num2str(Nw2) ' partitions'])
     subplot(122)
     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
-    c.Ticks = 1:Nw2; % np ticks
-    cm = colormap; % 64 default colors
-    cm = cm(1:64/Nw2:64,:); % reduce to np colors
+    c.Ticks = 1:Nw2;                  % np ticks
+    cm = colormap;                    % 64 default colors
+    cm = cm(1:64/Nw2:64,:);           % reduce to np colors
     colormap(cm)
 end
 %
 end % end function
-
 ##### SOURCE END #####
 --></body></html>

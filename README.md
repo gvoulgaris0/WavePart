@@ -7,6 +7,9 @@ Authors:
   School of the Earth, Ocean and Environment  
   University of South Carolina  
   Columbia, SC, 29205, USA.  
+  
+ Citation:  
+   -  Douglas, C. and Voulgaris, G., 2019, WavePART: MATLAB(r) software for the partition of directional ocean wave spectra.: Zenodo, doi:10.5281/zenodo.2638500. 
 
 Relevant References:  
    -  J.L. Hanson and O.M. Philips, 2001. Automated Analysis of Ocean Surface Directional  Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.   

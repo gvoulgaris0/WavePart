@@ -1,0 +1,196 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Example of how to read the cell data outut from WavePart</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-15"><meta name="DC.source" content="Read_WavePart_Output.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Example of how to read the cell data outut from WavePart</h1><!--introduction--><p>This is an example code to read the output parameters from the wavepart code. The various parameters for each partition and the bulk parameter are output as cells. For example the peak and mean wave frequencies for each partition as well as for the wahole spectrum are output in the f cell. The same applies for wave heights and wave directions. Below is a script that loads the data into abd creates time-series. Also an example on how to plot teh frequencies as a time-series is provided. The user shoudl adjust this script to fit her/his requirements</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load the datafile</a></li><li><a href="#2">Create time series from each data containing cell</a></li><li><a href="#3">Example of plotting</a></li></ul></div><h2 id="1">Load the datafile</h2><pre class="codeinput">load <span class="string">..\data\waveparamsoutput.mat</span>  <span class="comment">% replace with your datafile that stores the results of wavepartition</span>
+<span class="comment">%</span>
+</pre><h2 id="2">Create time series from each data containing cell</h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(f)     <span class="comment">% Do loop for each time-step</span>
+    <span class="comment">%</span>
+    <span class="comment">% Mean (fm) and Peak (fp) frequency of each partition (Hz)</span>
+    <span class="comment">%</span>
+    ff          = f{i};        <span class="comment">% Extract cell content for this time-step i</span>
+    [m,n]       = size(ff);    <span class="comment">% n-1 is the no of partitions</span>
+    fm(i,1:n-1) = ff(1,1:n-1); <span class="comment">% take all fmean values for all partitions</span>
+    fp(i,1:n-1) = ff(2,1:n-1); <span class="comment">% take all fpeak values for all partitions</span>
+    <span class="comment">%</span>
+    <span class="comment">% Mean (Dm) and Peak (Dp) direction (degs) and Directional spead (sigma) for each partition.</span>
+    <span class="comment">%</span>
+    dd          = D{i};
+    Dm(i,1:n-1) = dd(1,1:n-1);
+    Dp(i,1:n-1) = dd(2,1:n-1);
+    si(i,1:n-1) = dd(3,1:n-1);
+    <span class="comment">%</span>
+    <span class="comment">% RMS (Hrms), significant (Hsig) wave height (m) and significant slope (Hsig/L)</span>
+    <span class="comment">%</span>
+    hh            = H{i};
+    Hrms(i,1:n-1) = hh(1,1:n-1);
+    Hsig(i,1:n-1) = hh(2,1:n-1);
+    psi(i,1:n-1)  = hh(3,1:n-1);
+    <span class="comment">%</span>
+    <span class="comment">% Bulk parameters (from full (no-partitioned) specta)</span>
+    <span class="comment">%</span>
+    fbm(i)   = ff(1,n);
+    fbp(i)   = ff(2,n);
+    Dbm(i)   = dd(1,n);
+    Dbp(i)   = dd(2,n);
+    sib(i)   = dd(3,n);
+    Hbrms(i) = hh(1,n);
+    Hbsig(i) = hh(2,n);
+    psib(i)  = hh(3,n);
+<span class="keyword">end</span>
+<span class="comment">%</span>
+<span class="comment">% Replace zero values (i.e., no partition identified) with NaN</span>
+fm(fm==0)=NaN;
+fp(fp==0)=NaN;
+Dm(Dm==0)=NaN;
+Dp(Dp==0)=NaN;
+si(si==0)=NaN;
+Hrms(Hrms==0)=NaN;
+Hsig(Hsig==0)=NaN;
+psi(psi==0)=NaN;
+</pre><h2 id="3">Example of plotting</h2><pre class="codeinput">figure
+plot(fm(:,1:2)) <span class="comment">% Plot values for partitions 1 (swell) and 2 (wind wave)</span>
+hold <span class="string">on</span>
+plot(fp(:,1:2))
+legend(<span class="string">'fm - #1'</span>,<span class="string">'fm - #2'</span>,<span class="string">'fp - #1'</span>, <span class="string">'fp - #2'</span>)
+title(<span class="string">'mean and peak frequency for partitions 1 and 2'</span>)
+ylabel(<span class="string">'Frequency (Hz)'</span>)
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Example of how to read the cell data outut from WavePart
+%
+% This is an example code to read the output parameters from the wavepart code.
+% The various parameters for each partition and the bulk parameter are output
+% as cells. For example the peak and mean wave frequencies for each partition
+% as well as for the wahole spectrum are output in the f cell. The same applies
+% for wave heights and wave directions. Below is a script that loads the data into 
+% abd creates time-series. Also an example on how to plot teh frequencies as a 
+% time-series is provided. The user shoudl adjust this script to fit her/his requirements
+%
+%
+%% Load the datafile 
+%
+load ..\data\waveparamsoutput.mat  % replace with your datafile that stores the results of wavepartition
+%  
+%% Create time series from each data containing cell
+%
+for i = 1:length(f)     % Do loop for each time-step
+    %
+    % Mean (fm) and Peak (fp) frequency of each partition (Hz)
+    %
+    ff          = f{i};        % Extract cell content for this time-step i
+    [m,n]       = size(ff);    % n-1 is the no of partitions
+    fm(i,1:n-1) = ff(1,1:n-1); % take all fmean values for all partitions
+    fp(i,1:n-1) = ff(2,1:n-1); % take all fpeak values for all partitions
+    %
+    % Mean (Dm) and Peak (Dp) direction (degs) and Directional spead (sigma) for each partition.
+    %
+    dd          = D{i};
+    Dm(i,1:n-1) = dd(1,1:n-1);
+    Dp(i,1:n-1) = dd(2,1:n-1);
+    si(i,1:n-1) = dd(3,1:n-1);
+    %
+    % RMS (Hrms), significant (Hsig) wave height (m) and significant slope (Hsig/L)
+    %
+    hh            = H{i};
+    Hrms(i,1:n-1) = hh(1,1:n-1);
+    Hsig(i,1:n-1) = hh(2,1:n-1);
+    psi(i,1:n-1)  = hh(3,1:n-1);
+    %
+    % Bulk parameters (from full (no-partitioned) specta)
+    %
+    fbm(i)   = ff(1,n); 
+    fbp(i)   = ff(2,n); 
+    Dbm(i)   = dd(1,n);
+    Dbp(i)   = dd(2,n);
+    sib(i)   = dd(3,n);
+    Hbrms(i) = hh(1,n);
+    Hbsig(i) = hh(2,n);
+    psib(i)  = hh(3,n);
+end
+%
+% Replace zero values (i.e., no partition identified) with NaN
+fm(fm==0)=NaN;                
+fp(fp==0)=NaN;
+Dm(Dm==0)=NaN;
+Dp(Dp==0)=NaN;
+si(si==0)=NaN;
+Hrms(Hrms==0)=NaN;
+Hsig(Hsig==0)=NaN;
+psi(psi==0)=NaN;
+
+%% Example of plotting
+%
+figure
+plot(fm(:,1:2)) % Plot values for partitions 1 (swell) and 2 (wind wave)
+hold on
+plot(fp(:,1:2))
+legend('fm - #1','fm - #2','fp - #1', 'fp - #2')
+title('mean and peak frequency for partitions 1 and 2')
+ylabel('Frequency (Hz)')
+##### SOURCE END #####
+--></body></html>

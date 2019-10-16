@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>waveparamspart</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-13"><meta name="DC.source" content="waveparamspart.m"><style type="text/css">
+      --><title>waveparamspart1</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-13"><meta name="DC.source" content="waveparamspart1.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,32 +66,28 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">waveparamspart.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li></ul></div><h2 id="1">waveparamspart.m</h2><pre class="codeinput"><span class="keyword">function</span> [f,D,Ee,H,Er,Np] = waveparamspart(E,freq,dir,AA,h)
-</pre><pre>[f,D,Ee,H,Er,Np] = waveparamspart(E,freq,dir,AA,[h])</pre><pre>Function to calculate the wave parameters for each partition of the
-spectrum plus the total bulk parameters using the full, unpartitioned spectrum.
-The peak and mean values for each partition are estimated as well as
-other parameters as described in Hanson and Phillips (2001),(see Appendix therein).</pre><h2 id="3">Inputs</h2><pre>E    = Directional Wave energy density (m2/Hz/deg)
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">waveparamspart.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Authors</a></li><li><a href="#7">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#8">Main Function</a></li></ul></div><h2 id="1">waveparamspart.m</h2><pre class="codeinput"><span class="keyword">function</span> [f,D,Ee,H,Er] = waveparamspart(E,freq,dir,AA,h)
+</pre><pre>[f,D,Ee,H,Er] = waveparamspart(E,freq,dir,AA,[h])</pre><pre>Function to calculate the wave parameters for each partition of the
+spectrum. The peak values for each partition are estimated as well as
+the mean and other parameters as described in Hanson and Phillips (2001)
+(see Appendix therein).</pre><h2 id="3">Inputs</h2><pre>E    = Directional Wave energy density (m2/Hz/deg)
 freq = frequency array of spectral estimates (Hz)
 dir  = direction array of spectral estimates (degs)
 AA   = Matrix same dimensions as E indentifying partition element by a number.
-h    = water depth [Optional]</pre><h2 id="4">Outputs</h2><pre>f (1:2,1:Np+1) = [fm fp] Mean and Peak frequency of each partition (Hz)
-D (1:3,1:Np+1) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
-Ee(1:2,1:Np+1) = [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-H (1:3,1:Np+1) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
-Er             = Diagnostic error (in %) showing the energy not represented by
-                 the partitions. Er= 100*( Etotal-sum(Epartitions) ) / Etotal.
-Np             = Number of partitions</pre><pre>note:  the bulk parameter values are reported at location Np+1, after
-the partitioned parameters.</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Updates</h2><pre>10/13/2019    -  The diagnostic Er and bulk parameter estimations were
-                 added. Also the mean period estimation was wrong and it
-                 has been corrected.</pre><h2 id="7">Authors</h2><pre>Douglas Cahl and George Voulgaris
+h    = water depth [Optional]</pre><h2 id="4">Outputs</h2><pre>f (1:2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
+D (1:3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
+Ee(1:2,n) = [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
+H (1:3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+Er        = Diagnostic error (in %) showing the energy not represented by
+            the partitions. Er= 100*( Etotal-sum(Epartitions) ) / Etotal.</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
-University of South Carolina, Columbia, SC, USA</pre><h2 id="8">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="9">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;5 || isempty(h)
+University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="8">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;5 || isempty(h)
     h=1000;   <span class="comment">% Deep water conditions</span>
 <span class="keyword">end</span>
 g   = 9.81;
-Np  = max(max(AA)); <span class="comment">% total number of partitions</span>
-f   = ones(2,Np+1);
-D   = ones(3,Np+1);
+Nw1 = max(max(AA)); <span class="comment">% total number of partitions</span>
+f   = ones(2,Nw1);
+D   = ones(3,Nw1);
 Ee  = f;
 H   = D;
 df  = freq(2)-freq(1);
@@ -100,25 +96,20 @@ dth = dir(2)-dir(1);
                     <span class="comment">% nf = no of freq. bins, nd (~)= no of direction bins</span>
 the  = repmat(dir(:)',nf,1);
 <span class="comment">%</span>
-Etotal  = sum(sum(E))*df*dth;                 <span class="comment">% \int S(f,theta) - Total energy</span>
+Etotal  = sum(sum(E))*df*dth;                 <span class="comment">% \int S(f,theta)</span>
 <span class="comment">%</span>
-<span class="keyword">for</span> i = 1:Np+1                               <span class="comment">% for each partition i, plus total</span>
-    <span class="keyword">if</span> i&lt;=Np
-        Mask1 = AA == i;
-        Epart = E.*Mask1;                     <span class="comment">% Partition i (Si(f,theta))</span>
-    <span class="keyword">else</span>
-        Epart = E;                            <span class="comment">% Total (S(f,theta))</span>
-    <span class="keyword">end</span>
+<span class="keyword">for</span> i = 1:Nw1                                 <span class="comment">% for each partition i</span>
+    Mask1   = AA == i;
+    Epart   = E.*Mask1;                       <span class="comment">% Si(f,theta)</span>
     [~,k]   = max(Epart(:));
-    [I1,J1] = ind2sub(size(Epart),k);
+    [I1,J1] = ind2sub(size(AA),k);
     fp      = freq(I1);                       <span class="comment">% Peak frequency for Si</span>
     Dp      = dir(J1);                        <span class="comment">% Peak direction for Si</span>
     Ep      = E(I1,J1);                       <span class="comment">% Peak energy level for Si</span>
     Et      = sum(sum(Epart))*df*dth;         <span class="comment">% \int Si(f,theta)</span>
     Hrms    = sqrt(2*Et);                     <span class="comment">% Hrms wave height (m)</span>
     Hsig    = 4*sqrt(Et);                     <span class="comment">% Hsig wave height (m)</span>
-    fm      = sum(sum(Epart,2).*freq)/<span class="keyword">...</span><span class="comment">     % Mean freq. of Si (m1/m0)</span>
-              sum(sum(Epart));
+    fm      = sum(sum(Epart,2)./freq)*df*dth; <span class="comment">% Mean freq. of Si</span>
     f(1:2,i)= [fm fp];
     sino    = sum(sum(Epart.*sind(the)))/Et;  <span class="comment">% normalised</span>
     coso    = sum(sum(Epart.*cosd(the)))/Et;  <span class="comment">%</span>
@@ -137,14 +128,14 @@ Er=(Etotal-sum(Ee(1,:)))/Etotal;              <span class="comment">% Error in t
 </pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% waveparamspart.m
-function [f,D,Ee,H,Er,Np] = waveparamspart(E,freq,dir,AA,h)
+function [f,D,Ee,H,Er] = waveparamspart(E,freq,dir,AA,h)
 %%  
-%  [f,D,Ee,H,Er,Np] = waveparamspart(E,freq,dir,AA,[h])
+%  [f,D,Ee,H,Er] = waveparamspart(E,freq,dir,AA,[h])
 %
 %  Function to calculate the wave parameters for each partition of the
-%  spectrum plus the total bulk parameters using the full, unpartitioned spectrum. 
-%  The peak and mean values for each partition are estimated as well as
-%  other parameters as described in Hanson and Phillips (2001),(see Appendix therein).
+%  spectrum. The peak values for each partition are estimated as well as
+%  the mean and other parameters as described in Hanson and Phillips (2001)
+%  (see Appendix therein).
 %
 %% Inputs
 %  E    = Directional Wave energy density (m2/Hz/deg)
@@ -154,24 +145,15 @@ function [f,D,Ee,H,Er,Np] = waveparamspart(E,freq,dir,AA,h)
 %  h    = water depth [Optional]
 %
 %% Outputs
-%  f (1:2,1:Np+1) = [fm fp] Mean and Peak frequency of each partition (Hz)
-%  D (1:3,1:Np+1) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
-%  Ee(1:2,1:Np+1) = [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%  H (1:3,1:Np+1) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
-%  Er             = Diagnostic error (in %) showing the energy not represented by
-%                   the partitions. Er= 100*( Etotal-sum(Epartitions) ) / Etotal.
-%  Np             = Number of partitions
-% 
-%  note:  the bulk parameter values are reported at location Np+1, after
-%  the partitioned parameters.
+%  f (1:2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
+%  D (1:3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
+%  Ee(1:2,n) = [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
+%  H (1:3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%  Er        = Diagnostic error (in %) showing the energy not represented by
+%              the partitions. Er= 100*( Etotal-sum(Epartitions) ) / Etotal.
 %
 %% Uses 
 %  dispersion.m  - function to solve the dispersion equation for shallow waters
-%
-%% Updates
-%  10/13/2019    -  The diagnostic Er and bulk parameter estimations were
-%                   added. Also the mean period estimation was wrong and it
-%                   has been corrected. 
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -200,9 +182,9 @@ if nargin<5 || isempty(h)
     h=1000;   % Deep water conditions
 end
 g   = 9.81;
-Np  = max(max(AA)); % total number of partitions
-f   = ones(2,Np+1);
-D   = ones(3,Np+1);
+Nw1 = max(max(AA)); % total number of partitions
+f   = ones(2,Nw1);
+D   = ones(3,Nw1);
 Ee  = f;
 H   = D;
 df  = freq(2)-freq(1);
@@ -211,25 +193,20 @@ dth = dir(2)-dir(1);
                     % nf = no of freq. bins, nd (~)= no of direction bins
 the  = repmat(dir(:)',nf,1);
 %
-Etotal  = sum(sum(E))*df*dth;                 % \int S(f,theta) - Total energy
+Etotal  = sum(sum(E))*df*dth;                 % \int S(f,theta)
 %
-for i = 1:Np+1                               % for each partition i, plus total
-    if i<=Np
-        Mask1 = AA == i;
-        Epart = E.*Mask1;                     % Partition i (Si(f,theta))
-    else
-        Epart = E;                            % Total (S(f,theta))
-    end
+for i = 1:Nw1                                 % for each partition i
+    Mask1   = AA == i;                        
+    Epart   = E.*Mask1;                       % Si(f,theta)
     [~,k]   = max(Epart(:));
-    [I1,J1] = ind2sub(size(Epart),k);
+    [I1,J1] = ind2sub(size(AA),k);
     fp      = freq(I1);                       % Peak frequency for Si
     Dp      = dir(J1);                        % Peak direction for Si
     Ep      = E(I1,J1);                       % Peak energy level for Si
     Et      = sum(sum(Epart))*df*dth;         % \int Si(f,theta)
     Hrms    = sqrt(2*Et);                     % Hrms wave height (m)
     Hsig    = 4*sqrt(Et);                     % Hsig wave height (m)
-    fm      = sum(sum(Epart,2).*freq)/...     % Mean freq. of Si (m1/m0)
-              sum(sum(Epart));
+    fm      = sum(sum(Epart,2)./freq)*df*dth; % Mean freq. of Si
     f(1:2,i)= [fm fp];
     sino    = sum(sum(Epart.*sind(the)))/Et;  % normalised
     coso    = sum(sum(Epart.*cosd(the)))/Et;  %

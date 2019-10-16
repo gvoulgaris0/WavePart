@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>readspectra</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-04-12"><meta name="DC.source" content="readspectra.m"><style type="text/css">
+      --><title>readspectra</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-15"><meta name="DC.source" content="readspectra.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">readspectra.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Output</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Authors</a></li><li><a href="#7">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#8">Main Function</a></li><li><a href="#9">run analysis on each wave spectrum</a></li><li><a href="#10">wildpoint removal and smoothing</a></li><li><a href="#11">plot</a></li></ul></div><h2 id="1">readspectra.m</h2><pre class="codeinput"><span class="keyword">function</span> [fw,dw] = readspectra(t,freq,dir,S,swplot)
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">readspectra.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Output</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Authors</a></li><li><a href="#7">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#8">Main Function</a></li><li><a href="#9">Run the analysis on each wave spectrum</a></li><li><a href="#10">Wildpoint removal and smoothing</a></li><li><a href="#11">Plot (if swplot&gt;0)</a></li></ul></div><h2 id="1">readspectra.m</h2><pre class="codeinput"><span class="keyword">function</span> [fw,dw] = readspectra(t,freq,dir,S,swplot)
 </pre><pre class="codeinput"><span class="comment">%</span>
 <span class="comment">% Function that estimates the lower frequency limit of the wind wave</span>
 <span class="comment">% spectra directly from a timeseries of 2-D wave spectra. For each wave</span>
@@ -79,9 +79,9 @@ freq   - frequency array of spectrum (Hz)
 dir    - direction array of spectrum (degrees)
 S      - timeseries of 2-D wave spectral energies S(freq,dir,time)
 swplot - &gt;0 show plot of analysis</pre><h2 id="4">Output</h2><pre>fw   - lowest frequency of wind-induced waves (Hz, filtered+smoothed)
-dw   - direction at peak wind wave energy (degrees, math orientation)</pre><h2 id="5">Uses</h2><pre>windlmit.m</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
+dw   - direction at peak wind wave energy (degrees, math orientation)</pre><h2 id="5">Uses</h2><pre>windlmit.m, wildpoint.m</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
-University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="8">Main Function</h2><h2 id="9">run analysis on each wave spectrum</h2><pre class="codeinput">N   = length(t);  <span class="comment">% length of timeseries</span>
+University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="8">Main Function</h2><h2 id="9">Run the analysis on each wave spectrum</h2><pre class="codeinput">N   = length(t);  <span class="comment">% length of timeseries</span>
 Fw  = zeros(1,N); <span class="comment">% wind wave frequency lower limit (Hz)</span>
 Dpk = zeros(1,N); <span class="comment">% direction (degrees) at peak wind wave energy (f&gt;Fw)</span>
 Sf  = zeros(length(freq),N); <span class="comment">% frequency spectrum</span>
@@ -97,7 +97,7 @@ Sth = zeros(length(dir),N);  <span class="comment">% direction specturm</span>
         Dpk(i) = dir(k);    <span class="comment">% direction at peak frequency</span>
 <span class="keyword">end</span>
 <span class="comment">%</span>
-</pre><h2 id="10">wildpoint removal and smoothing</h2><pre class="codeinput">Const = 1; <span class="comment">% how many stds in the 5pt median sort for wildpints remove</span>
+</pre><h2 id="10">Wildpoint removal and smoothing</h2><pre class="codeinput">Const = 1; <span class="comment">% how many stds in the 5pt median sort for wildpints remove</span>
 mvpt  = 15; <span class="comment">% moving mean of window this wide for final result</span>
 <span class="comment">% frequency (fw)</span>
 fw=wildpoint(Fw,Const);
@@ -119,7 +119,7 @@ Dy = movmean(Dy,mvpt);
 Dy = movmean(Dy,mvpt); <span class="comment">% moving average</span>
 dw = atan2d(Dy,Dx);
 <span class="comment">%</span>
-</pre><h2 id="11">plot</h2><pre class="codeinput"><span class="keyword">if</span> swplot &gt; 0
+</pre><h2 id="11">Plot (if swplot&gt;0)</h2><pre class="codeinput"><span class="keyword">if</span> swplot &gt; 0
     figure
     <span class="comment">% fw</span>
     subplot(221)
@@ -190,7 +190,7 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 %  dw   - direction at peak wind wave energy (degrees, math orientation)  
 %
 %% Uses
-%  windlmit.m
+%  windlmit.m, wildpoint.m
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -215,7 +215,7 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
 %% Main Function
-%% run analysis on each wave spectrum
+%% Run the analysis on each wave spectrum
 N   = length(t);  % length of timeseries
 Fw  = zeros(1,N); % wind wave frequency lower limit (Hz)
 Dpk = zeros(1,N); % direction (degrees) at peak wind wave energy (f>Fw)
@@ -232,7 +232,7 @@ for i = 1:length(t)
         Dpk(i) = dir(k);    % direction at peak frequency
 end
 %
-%% wildpoint removal and smoothing
+%% Wildpoint removal and smoothing
 Const = 1; % how many stds in the 5pt median sort for wildpints remove
 mvpt  = 15; % moving mean of window this wide for final result
 % frequency (fw)
@@ -255,7 +255,7 @@ Dy = movmean(Dy,mvpt);
 Dy = movmean(Dy,mvpt); % moving average
 dw = atan2d(Dy,Dx);
 %
-%% plot
+%% Plot (if swplot>0)
 if swplot > 0
     figure
     % fw

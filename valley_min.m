@@ -12,12 +12,16 @@ function vmin = valley_min(E,freq,dir,d1,d2,f1,f2,AA)
 %    d2   = direction of partition 2
 %    f1   = frequency of partition 1
 %    f2   = frequency of partition 2
-%    [AA] = partitions, noise = 0, optional
+%    [AA] = [Optional] 2-D matrix same size as E, with partition 
+%           id number (0 is for noise)
 %
 %  Output
 %    vmin = the minimum value of the line connecting (d1,f1) to
-%    (d2,f2), returns Nan if passes through noise (AA=0) (optional input)
-%    or partitions different than partition 1 or 2
+%           (d2,f2), returns Nan if passes through noise (AA=0)(optional input)
+%           or partitions different than partition 1 or 2
+%
+%  Updates
+%     10/12/2019 - a bug was found and the function was updated.
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -59,8 +63,7 @@ if abs(d1 - d2) > 180 % we need to wrap around instead
             E   = [E(:,j2:end) E(:,1:j2-1)];
             dir = [dir(j2:end)-360; dir(1:j2-1)];
         else
-            E  = E(:,j2:end);
-            dir = dir - 360;
+            d2  = d2 - 360;  % DC 10/11/2019
         end
     else % wrap points from left to right
         % [-180 ... d2 ... d1 ... 180] -> [... d1 ... 180 ... d2 + 360]
@@ -69,8 +72,7 @@ if abs(d1 - d2) > 180 % we need to wrap around instead
             E   = [E(:,j2:end) E(:,1:j2-1)];
             dir = [dir(j2:end); dir(1:j2-1)+360];
         else
-            E  = E(:,j2:end);
-            dir = dir + 360;
+            d2  = d2 + 360; % DC 10/11/19
         end
     end
 end
@@ -80,7 +82,7 @@ ln_f   = f1 + m_val*(ln_dir-d1);        % line between (d1,f1) and (d2,f2)
 [f,th] = meshgrid(freq(:),dir(:));      % meshgrid 
 ln_val = interp2(f,th,E',ln_f,ln_dir);  % values on line
 vmin = min(ln_val);                     % minimum value on line
-if nargin > 7 && ~isnan(m_val) % check if crosses noise partition (AA=0)
+if nargin > 7 && ~isnan(m_val)   % check if crosses noise partition (AA=0)
     P1 = AA(i1,j1);
     P2 = AA(i2,j2);
     for i = 1:length(ln_dir)

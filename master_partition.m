@@ -7,9 +7,9 @@ load(fn) % t freq dir S(freq,dir,time)
 % 
 %% wind frequency and direction analysis (NCEP_winds = 0)
 % >0 plot timeseries of fw and dw analysis 
-plt1    = 1; 
+plt1    = 0; 
 [fw,dw] = readspectra(t,freq,dir,S,plt1); 
-fw(fw>0.12) = 0.12; % set maximum wind cutoff (fw = 0.12 Hz)
+fw(fw>0.12) = 0.12; % set minimum freq. for wind waves (fw = 0.12 Hz)
 %
 %% run partition routine loop
 h          = 30; % water depth in meters
@@ -28,21 +28,21 @@ for i = 1:length(t) % strong wind at 267, complex at 100, 287
     else
         [AA,E]=partition(freq,dir,E0,wfc,fw(i)); % windminf = fw(i)
     end
-    np = max(max(AA)); % number of partitions
+    % np = max(max(AA)); % number of partitions
     % calculate wave parameters for each partition
-    [f{i},D{i},Ep{i},H{i}] = waveparamspart(E,freq,dir,AA,h);
+    [f{i},D{i},Ep{i},H{i},Er(i),Nparts(i)] = waveparamspart(E,freq,dir,AA,h);
     
-    % partitioned energy surf plot
-    clf
-    subplot(121)
-    surf(freq',dir',E',AA')
-    title([datestr(t(i)) '     ' num2str(np) ' partitions'])
-    % pcolor partition plot
-    subplot(122)
-    [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
-    c.Ticks = 0:np; % np ticks
-    colormap(jet(np+1))
-    drawnow
-%     pause
-    return
+%     % partitioned energy surf plot
+%     clf
+%     subplot(121)
+%     surf(freq',dir',E',AA')
+%     title([datestr(t(i)) '     ' num2str(Nparts(i)) ' partitions'])
+%     % pcolor partition plot
+%     subplot(122)
+%     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
+%     c.Ticks = 0:np; % np ticks
+%     colormap(jet(Nparts(i)+1))
+%     drawnow
+% %     pause
+%     return
 end

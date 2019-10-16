@@ -31,6 +31,9 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 %  Ef    - Smoothed energy matrix used for partition calculations,
 %           
 %% Uses
+%  watreshed_ww3.m     - computes a matrix identifying the watershed
+%                        regions of the input matrix (available as a mex
+%                        file too for increased computational speed).
 %  filterDirWavespec.m - smooths the measured spectrum (E)and creates Ef
 %  peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips (2001)
 %  valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
@@ -107,7 +110,7 @@ Ef = filterDirWavespec(E,2,navg);
 %
 %% STEP 2: Identify all partitions possible
 %
-% AA = watershed_ww3(Ef); % WW3 watershed algorithm function (using mex is faster)
+% AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)
 AA      = watershed_ww3_mex(Ef); % WW3 watershed algorithm (suggested mex)
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   % number of partitions identified
@@ -335,10 +338,10 @@ end
 AA  = BB;
 %
 %% STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim
-N     = max(max(AA)); % number of partitions
+N     = max(max(AA));                % number of partitions
 sumSw   = zeros(N,1);
 Hsig    = fp;
-for i=2:N % only swell partitions
+for i=2:N                            % only swell partitions
     Mask1   = AA == i;
     Sw      = E.*Mask1;
     sumSw(i)= sum(sum(Sw))*df*dth;   % Energy of partition class i
@@ -348,7 +351,7 @@ end
 for i = 2:N
     if Hsig(i) < swell_hs_lim
         Mask1   = AA == i;
-        AA(Mask1) = 0; % set to noise
+        AA(Mask1) = 0;               % set to noise
     end
 end
 % Re-number remaining partitions
@@ -358,7 +361,7 @@ ic = 1;
 for i  = 2:N
     in = length(find(AA==i));
     if in~=0
-        ic    = ic+1;          % partition counting
+        ic    = ic+1;               % partition counting
         [j]   = find(AA==i);
         BB(j) = ic;
     end
@@ -374,13 +377,13 @@ AA  = BB;
 
 N = max(max(AA));
 sumSw = zeros(N-1,1);
-for i=2:N                          % for each partition
+for i=2:N                              % for each partition
     Mask1 = AA == i;
     Sw      = E.*Mask1;
     sumSw(i-1)= sum(sum(Sw))*df*dth;   % Energy of partition class i
 end
 %
-[~,Js] = sort(sumSw,'descend');  % Sort according to energy
+[~,Js] = sort(sumSw,'descend');        % Sort according to energy
 BB         = AA;
 for i=1:N-1
     [j]   = find(AA==Js(i)+1);
@@ -396,9 +399,9 @@ if sw == 999
     title([num2str(Nw2) ' partitions'])
     subplot(122)
     [~,c] = polarPcolor(freq',[dir ; dir(1)]',[AA  AA(:,1)]');
-    c.Ticks = 1:Nw2; % np ticks
-    cm = colormap; % 64 default colors
-    cm = cm(1:64/Nw2:64,:); % reduce to np colors
+    c.Ticks = 1:Nw2;                  % np ticks
+    cm = colormap;                    % 64 default colors
+    cm = cm(1:64/Nw2:64,:);           % reduce to np colors
     colormap(cm)
 end
 %

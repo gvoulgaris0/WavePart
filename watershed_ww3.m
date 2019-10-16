@@ -4,7 +4,7 @@ function AA = watershed_ww3(E)
 % AA = watershed_ww3(E)
 %
 % Function that computes a matrix identifying the watershed regions of the
-% input matrix E. It is similar to the Matlab(r) buil in function watershed.m
+% input matrix E. It is similar to the Matlab(r) built in function watershed.m
 % The elements of AA are positive integers >=1 and each number labels a wateshed.
 % The function uses 8-connected neighborhood points to identify the
 % watersheds and allows for continuity between the boundaries.

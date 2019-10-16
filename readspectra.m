@@ -19,7 +19,7 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 %  dw   - direction at peak wind wave energy (degrees, math orientation)  
 %
 %% Uses
-%  windlmit.m
+%  windlmit.m, wildpoint.m
 %
 %% Authors
 %  Douglas Cahl and George Voulgaris
@@ -44,7 +44,7 @@ function [fw,dw] = readspectra(t,freq,dir,S,swplot)
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 %
 %% Main Function
-%% run analysis on each wave spectrum
+%% Run the analysis on each wave spectrum
 N   = length(t);  % length of timeseries
 Fw  = zeros(1,N); % wind wave frequency lower limit (Hz)
 Dpk = zeros(1,N); % direction (degrees) at peak wind wave energy (f>Fw)
@@ -61,7 +61,7 @@ for i = 1:length(t)
         Dpk(i) = dir(k);    % direction at peak frequency
 end
 %
-%% wildpoint removal and smoothing
+%% Wildpoint removal and smoothing
 Const = 1; % how many stds in the 5pt median sort for wildpints remove
 mvpt  = 15; % moving mean of window this wide for final result
 % frequency (fw)
@@ -84,7 +84,7 @@ Dy = movmean(Dy,mvpt);
 Dy = movmean(Dy,mvpt); % moving average
 dw = atan2d(Dy,Dx);
 %
-%% plot
+%% Plot (if swplot>0)
 if swplot > 0
     figure
     % fw
