@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-15"><meta name="DC.source" content="partition.m"><style type="text/css">
+      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-18"><meta name="DC.source" content="partition.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,9 +66,11 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Authors</a></li><li><a href="#7">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#8">Main Function</a></li><li><a href="#9">Set parameters for analysis</a></li><li><a href="#10">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#11">STEP 2: Identify all partitions possible</a></li><li><a href="#12">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#13">STEP 4 Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#14">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#15">STEP 6 Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#16">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#17">STEP 8 Re-order partitions in terms of energy level in descending order</a></li><li><a href="#18">plot</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li><li><a href="#10">Set parameters for analysis</a></li><li><a href="#11">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#12">STEP 2: Identify all partitions possible</a></li><li><a href="#13">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#14">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#15">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#16">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#17">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#18">STEP 8: Re-order partitions in terms of energy level in descending order</a></li><li><a href="#19">Plot option</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 </pre><p>[AA,Ef]=partition(freq,dir,E,[wfc],[fw],[sw])</p><p>Function to partition a directional wave spectrum in to different components. The partitions are given in energy descenting order. Partitions identified by the watershed function are modified following mostly the method described in:</p><p>Hanson and Phillips (2001) Automated Analysis of Ocean Surface Directional Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.</p><h2 id="3">Inputs</h2><pre>freq  - Frequency array of directional spectrum (Hz)
 dir   - Directional array of spectrum (degs)
+        NOTE: the same direction should not appear twice (i.e. no 0 &amp; 360o
+        or +/-180o)
 E     - Directional wave spectral density m2/Hz/deg
 wfc   - (optional) (=1) only keep wind partitions within wind band
 fw    - (optional) wind frequency lower limit (Hz), ex. 0.8*fpeak of wind
@@ -88,16 +90,18 @@ peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips
 valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
 polarPcolor.m       - pcolor in polar coordinates developed by E. Cheynet (2019).
                        (https://www.mathworks.com/matlabcentral/fileexchange/49040-pcolor-in-polar-coordinates)
-                       MATLAB Central File Exchange. Retrieved March 16, 2019.</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
+                       MATLAB Central File Exchange. Retrieved March 16, 2019.</pre><h2 id="6">Updates</h2><pre>1/18/2020:  Added comment about data input should not contain the same
+            direction twice and other minor changes. Also lines
+            ee=zeros(N,N) and dd=zeros(N,N) were added.</pre><h2 id="7">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
-University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="8">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;6 || isempty(sw)
+University of South Carolina, Columbia, SC, USA</pre><h2 id="8">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="9">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;6 || isempty(sw)
     sw = 10;
 <span class="keyword">end</span>
 <span class="keyword">if</span> nargin&lt;4 || isempty(wfc)
     sw  = 10;
     wfc = 1;
 <span class="keyword">end</span>
-</pre><h2 id="9">Set parameters for analysis</h2><pre class="codeinput">navg       = 3; <span class="comment">% window size, ex. 3 uses averaging window of [3x3] twice, 5 uses [5x5] twice</span>
+</pre><h2 id="10">Set parameters for analysis</h2><pre class="codeinput">navg       = 3; <span class="comment">% window size, ex. 3 uses averaging window of [3x3] twice, 5 uses [5x5] twice</span>
 <span class="comment">% wind parameters</span>
 wind_width = 90; <span class="comment">% width of wind band in degrees, default 120 degrees</span>
 windminf   = 0.12; <span class="comment">% merge wind partitions above this frequency (Hz, default 0.15)</span>
@@ -129,9 +133,9 @@ z = 0.4; <span class="comment">% 0.65;    % minimum between peaks EM &gt; z*El w
 <span class="keyword">if</span> nargin&gt; 4
     windminf = fw; <span class="comment">% input windminf (fw)</span>
 <span class="keyword">end</span>
-</pre><h2 id="10">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
+</pre><h2 id="11">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
 <span class="comment">%</span>
-</pre><h2 id="11">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
+</pre><h2 id="12">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   <span class="comment">% number of partitions identified</span>
 <span class="comment">% calculate partition parameters</span>
@@ -147,7 +151,7 @@ Ep = fp;
     Ep(i)   = Ef(I1,J1);  <span class="comment">% Peak energy of partition i</span>
 <span class="keyword">end</span>
 <span class="comment">%</span>
-</pre><h2 id="12">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</h2><pre class="codeinput">Ep(fp&lt;windminf) = 0;    <span class="comment">% ignore partitions with fp &lt; the wind frequency mininimum (windminf)</span>
+</pre><h2 id="13">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</h2><pre class="codeinput">Ep(fp&lt;windminf) = 0;    <span class="comment">% ignore partitions with fp &lt; the wind frequency mininimum (windminf)</span>
 <span class="keyword">if</span> sum(Ep) &lt; 0          <span class="comment">% if there are no wind partitions throw error</span>
     error(<span class="string">'no wind partitions, try reducing input fw (ex. 0.1 Hz)'</span>)
 <span class="keyword">end</span>
@@ -161,19 +165,19 @@ delta_th(delta_th&lt;-180) = delta_th(delta_th&lt;-180) + 360;
 id                      = abs(delta_th) &lt; wind_width; <span class="comment">% locations within wind_width (default 90)</span>
 fc                      = windminf./cosd(delta_th*90/wind_width);
 fc(~id)                 = nan;
-<span class="keyword">for</span> i=1:N <span class="comment">% merge partitions inside parabola</span>
+<span class="keyword">for</span> i=1:N                            <span class="comment">% merge partitions inside parabola</span>
     <span class="keyword">if</span> fp(i) == fpw
         <span class="keyword">continue</span>
     <span class="keyword">else</span>
         dj = find(dir == Dp(i),1);
-        <span class="keyword">if</span> fp(i) &gt; fc(dj) <span class="comment">% if peak energy of partition is within wind parabola</span>
+        <span class="keyword">if</span> fp(i) &gt; fc(dj)            <span class="comment">% if peak energy of partition is within wind parabola</span>
             [parti]   = find(AA==i); <span class="comment">% other partition number</span>
-            AA(parti) = wN;      <span class="comment">% wind partition number</span>
+            AA(parti) = wN;          <span class="comment">% wind partition number</span>
         <span class="keyword">end</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
-<span class="keyword">if</span> wfc == 1 <span class="comment">% (wfc option) merge all points inside parabola and remove points outside parabola of the wind partition</span>
-    BB  = zeros(m,n); <span class="comment">% temp noise matrix</span>
+<span class="keyword">if</span> wfc == 1                  <span class="comment">% (wfc option) merge all points inside parabola and remove points outside parabola of the wind partition</span>
+    BB  = zeros(m,n);        <span class="comment">% temp noise matrix</span>
     <span class="keyword">for</span> i = 1:length(dir)
         fcd = fc(i);
         <span class="keyword">if</span> ~isnan(fcd)
@@ -206,7 +210,7 @@ ic = 1;
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="13">STEP 4 Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</h2><pre class="codeinput">N = max(max(AA));
+</pre><h2 id="14">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</h2><pre class="codeinput">N  = max(max(AA));
 fp = zeros(N,1);
 Dp = fp;
 df2= fp;
@@ -248,7 +252,7 @@ Sqsprd  = zeros(N,N);
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 <span class="comment">% Re-number remaining swell partitions</span>
-BB    = AA;
+BB = AA;
 ic = 1;
 <span class="keyword">for</span> i  = 2:max(max(AA))
     in = length(find(AA==i));
@@ -258,27 +262,27 @@ ic = 1;
         BB(j) = ic;
     <span class="keyword">end</span>
 <span class="keyword">end</span>
-AA  = BB;
+AA = BB;
 <span class="comment">%</span>
-</pre><h2 id="14">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</h2><pre class="codeinput">N = max(max(AA)); <span class="comment">% number of partitions after merging</span>
+</pre><h2 id="15">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</h2><pre class="codeinput">N = max(max(AA)); <span class="comment">% number of partitions after merging</span>
 <span class="comment">% find energy included in each partition.</span>
 P = zeros(N,1);
 fp = P;
-<span class="keyword">for</span> i = 2:N                              <span class="comment">% for each partition</span>
+<span class="keyword">for</span> i = 2:N                                <span class="comment">% for each partition</span>
     Mask1 = AA == i;
-    P(i)    = sum(sum(Ef.*Mask1))*df*dth;  <span class="comment">% Energy of partition class i</span>
-    [~,k]   = max(Ef(:).*Mask1(:));
+    P(i)   = sum(sum(Ef.*Mask1))*df*dth;   <span class="comment">% Energy of partition class i</span>
+    [~,k]  = max(Ef(:).*Mask1(:));
     [I1,~] = ind2sub(size(AA),k);
-    fp(i)   = freq(I1);   <span class="comment">% Peak frequency of partition i</span>
+    fp(i)  = freq(I1);                     <span class="comment">% Peak frequency of partition i</span>
 <span class="keyword">end</span>
 jo    = 1:N;
 mv    = A./(fp.^4+B);
 jn    = find(P(:)&gt;=mv(:) &amp; fp(:) &lt; 0.6 );  <span class="comment">% Find partition classes containing &gt; minEpart energy</span>
 op    = find(~ismember(jo,jn));            <span class="comment">% Identify the partition index that passes the minVar criterion</span>
 <span class="keyword">for</span> i  = 1:length(op)                      <span class="comment">% Assign all low enery partitions (&lt;minVar) to partition 0</span>
-    <span class="keyword">if</span> op(i) &gt; 1 <span class="comment">% ignore wind partition</span>
+    <span class="keyword">if</span> op(i) &gt; 1                           <span class="comment">% ignore wind partition</span>
         [j]    = find(AA==op(i));
-        AA(j)= 0; <span class="comment">% set to noise (=0)</span>
+        AA(j)= 0;                          <span class="comment">% set to noise (=0)</span>
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 N   = length(jn);      <span class="comment">% Number of remaining swell partitions</span>
@@ -289,14 +293,12 @@ BB    = AA;
 <span class="keyword">end</span>
 AA    = BB;
 <span class="comment">%</span>
-</pre><h2 id="15">STEP 6 Merge remaining swell partitions that do not have a valley between them and are separated</h2><pre>  by less than d_lim (def 90) degrees and f_lim in Hz, and are next to
-  each other</pre><pre class="codeinput">N = max(max(AA)); <span class="comment">% number of partitions after merging</span>
+</pre><h2 id="16">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</h2><pre>  by less than d_lim (def 90) degrees and f_lim in Hz, and are next to
+  each other</pre><pre class="codeinput">N = max(max(AA));  <span class="comment">% number of partitions after merging</span>
 fp = zeros(N,1);
 Dp = fp;
 Ep = fp;
-ee = fp;
-dd = fp;
-<span class="keyword">for</span> i=2:N <span class="comment">% ignoring noise partition(=0) and wind partition(=1)</span>
+<span class="keyword">for</span> i=2:N          <span class="comment">% ignoring noise partition(=0) and wind partition(=1)</span>
     Mask1   = AA == i;
     [~,k]   = max(Ef(:).*Mask1(:));
     [I1,J1] = ind2sub(size(AA),k);
@@ -305,21 +307,24 @@ dd = fp;
     Ep(i)   = Ef(I1,J1);  <span class="comment">% Peak energy of partition i</span>
 <span class="keyword">end</span>
 vmin = zeros(N,N); <span class="comment">% minimum energy on the line connecting two partitions peak energies</span>
+dd = zeros(N,N);   <span class="comment">% added 1/20/2020</span>
+ee = zeros(N,N);   <span class="comment">% added 1/20/2020</span>
 <span class="keyword">for</span> i=2:N
     <span class="keyword">for</span> ii = 2:N
-        f1 = fp(i);
-        f2 = fp(ii);
-        d1 = Dp(i);
-        d2 = Dp(ii);
-        ee(ii,i) = min([Ep(i) Ep(ii)]);
-        dd1 = abs(d2 - d1);
-        <span class="keyword">if</span> dd1 &gt; 180
-            dd1 = dd1 - 360;
+        <span class="keyword">if</span> i~=ii
+            f1 = fp(i);
+            f2 = fp(ii);
+            d1 = Dp(i);
+            d2 = Dp(ii);
+            ee(ii,i) = min([Ep(i) Ep(ii)]);
+            dd1 = abs(d2 - d1);
+            <span class="keyword">if</span> dd1 &gt; 180
+                dd1 = dd1 - 360;
+            <span class="keyword">end</span>
+            dd(ii,i) = dd1;
+            <span class="comment">% minimum energy on the line connecting two partitions peak energies</span>
+            vmin(ii,i) = valley_min(Ef,freq,dir,d1,d2,f1,f2,AA);
         <span class="keyword">end</span>
-        dd(ii,i) = dd1;
-        <span class="comment">% minimum energy on the line connecting two partitions peak</span>
-        <span class="comment">% energies</span>
-        vmin(ii,i) = valley_min(Ef,freq,dir,d1,d2,f1,f2,AA);
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 <span class="comment">% Merge partitions that do not have a valley between them (lower than z*ee,</span>
@@ -341,21 +346,21 @@ ic = 1;
 <span class="keyword">for</span> i  = 2:N
     in = length(find(AA==i));
     <span class="keyword">if</span> in~=0
-        ic    = ic+1;          <span class="comment">% partition counting</span>
+        ic    = ic+1;                <span class="comment">% partition counting</span>
         [j]   = find(AA==i);
         BB(j) = ic;
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="16">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA));                <span class="comment">% number of partitions</span>
+</pre><h2 id="17">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA));                <span class="comment">% number of partitions</span>
 sumSw   = zeros(N,1);
 Hsig    = fp;
 <span class="keyword">for</span> i=2:N                            <span class="comment">% only swell partitions</span>
     Mask1   = AA == i;
     Sw      = E.*Mask1;
     sumSw(i)= sum(sum(Sw))*df*dth;   <span class="comment">% Energy of partition class i</span>
-    Hsig(i)    = 4*sqrt(sumSw(i));                     <span class="comment">% Hsig wave height (m)</span>
+    Hsig(i)    = 4*sqrt(sumSw(i));   <span class="comment">% Hsig wave height (m)</span>
 <span class="keyword">end</span>
 <span class="comment">% keep only swell partitions with (default Hsig &gt; 0.2 meters)</span>
 <span class="keyword">for</span> i = 2:N
@@ -371,14 +376,14 @@ ic = 1;
 <span class="keyword">for</span> i  = 2:N
     in = length(find(AA==i));
     <span class="keyword">if</span> in~=0
-        ic    = ic+1;               <span class="comment">% partition counting</span>
+        ic    = ic+1;                <span class="comment">% partition counting</span>
         [j]   = find(AA==i);
         BB(j) = ic;
     <span class="keyword">end</span>
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="17">STEP 8 Re-order partitions in terms of energy level in descending order</h2><p>Partition Number ; Partition type                0 ; Noise                1 ; Wind                2 ; largest (Hsig) swell partition                3 ; 2nd largest Swell partition</p><pre class="codeinput">N = max(max(AA));
+</pre><h2 id="18">STEP 8: Re-order partitions in terms of energy level in descending order</h2><p>Partition # ; Partition type    0        ;   Noise    1        ;   Wind    2        ;   largest (Hsig) swell partition    3        ;   2nd largest Swell partition</p><pre class="codeinput">N = max(max(AA));
 sumSw = zeros(N-1,1);
 <span class="keyword">for</span> i=2:N                              <span class="comment">% for each partition</span>
     Mask1 = AA == i;
@@ -394,7 +399,7 @@ BB         = AA;
 <span class="keyword">end</span>
 AA=BB;
 <span class="comment">%</span>
-</pre><h2 id="18">plot</h2><pre class="codeinput"><span class="keyword">if</span> sw == 999
+</pre><h2 id="19">Plot option</h2><pre class="codeinput"><span class="keyword">if</span> sw == 999
     figure
     subplot(121)
     surf(freq',dir',Ef',AA')
@@ -423,9 +428,12 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 % Hanson and Phillips (2001) Automated Analysis of Ocean Surface Directional
 % Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.
 %
+%
 %% Inputs
 %  freq  - Frequency array of directional spectrum (Hz)
 %  dir   - Directional array of spectrum (degs)
+%          NOTE: the same direction should not appear twice (i.e. no 0 & 360o
+%          or +/-180o)
 %  E     - Directional wave spectral density m2/Hz/deg
 %  wfc   - (optional) (=1) only keep wind partitions within wind band
 %  fw    - (optional) wind frequency lower limit (Hz), ex. 0.8*fpeak of wind
@@ -453,6 +461,12 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 %                         (https://www.mathworks.com/matlabcentral/fileexchange/49040-pcolor-in-polar-coordinates)
 %                         MATLAB Central File Exchange. Retrieved March 16, 2019.
 %
+%% Updates
+% 
+%  1/18/2020:  Added comment about data input should not contain the same
+%              direction twice and other minor changes. Also lines
+%              ee=zeros(N,N) and dd=zeros(N,N) were added.
+%              
 %% Authors
 %  Douglas Cahl and George Voulgaris
 %  School of the Earth, Ocean and Environment
@@ -555,19 +569,19 @@ delta_th(delta_th<-180) = delta_th(delta_th<-180) + 360;
 id                      = abs(delta_th) < wind_width; % locations within wind_width (default 90)
 fc                      = windminf./cosd(delta_th*90/wind_width); 
 fc(~id)                 = nan;
-for i=1:N % merge partitions inside parabola
+for i=1:N                            % merge partitions inside parabola
     if fp(i) == fpw
         continue
     else
         dj = find(dir == Dp(i),1);
-        if fp(i) > fc(dj) % if peak energy of partition is within wind parabola
+        if fp(i) > fc(dj)            % if peak energy of partition is within wind parabola
             [parti]   = find(AA==i); % other partition number
-            AA(parti) = wN;      % wind partition number
+            AA(parti) = wN;          % wind partition number
         end
     end
 end
-if wfc == 1 % (wfc option) merge all points inside parabola and remove points outside parabola of the wind partition
-    BB  = zeros(m,n); % temp noise matrix
+if wfc == 1                  % (wfc option) merge all points inside parabola and remove points outside parabola of the wind partition
+    BB  = zeros(m,n);        % temp noise matrix
     for i = 1:length(dir)
         fcd = fc(i);
         if ~isnan(fcd)
@@ -600,9 +614,9 @@ for i  = 1:max(max(AA))
 end
 AA  = BB;
 %
-%%   STEP 4 Merge remaining swell partitions that are too close together (df2 < k*Df2 or minSqDist < (6*df)^2) and less than d_lim apart in direction
+%%   STEP 4: Merge remaining swell partitions that are too close together (df2 < k*Df2 or minSqDist < (6*df)^2) and less than d_lim apart in direction
 %
-N = max(max(AA));
+N  = max(max(AA));
 fp = zeros(N,1);
 Dp = fp;
 df2= fp;
@@ -644,7 +658,7 @@ for i=2:N
     end
 end
 % Re-number remaining swell partitions
-BB    = AA;
+BB = AA;
 ic = 1;
 for i  = 2:max(max(AA))
     in = length(find(AA==i));
@@ -654,7 +668,7 @@ for i  = 2:max(max(AA))
         BB(j) = ic;
     end
 end
-AA  = BB;
+AA = BB;
 %
 %% STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e <= A/(fp^4+B))
 %
@@ -662,21 +676,21 @@ N = max(max(AA)); % number of partitions after merging
 % find energy included in each partition.
 P = zeros(N,1);
 fp = P;
-for i = 2:N                              % for each partition
+for i = 2:N                                % for each partition
     Mask1 = AA == i;
-    P(i)    = sum(sum(Ef.*Mask1))*df*dth;  % Energy of partition class i
-    [~,k]   = max(Ef(:).*Mask1(:));
+    P(i)   = sum(sum(Ef.*Mask1))*df*dth;   % Energy of partition class i
+    [~,k]  = max(Ef(:).*Mask1(:));
     [I1,~] = ind2sub(size(AA),k);
-    fp(i)   = freq(I1);   % Peak frequency of partition i
+    fp(i)  = freq(I1);                     % Peak frequency of partition i
 end
 jo    = 1:N;
 mv    = A./(fp.^4+B);
 jn    = find(P(:)>=mv(:) & fp(:) < 0.6 );  % Find partition classes containing > minEpart energy
 op    = find(~ismember(jo,jn));            % Identify the partition index that passes the minVar criterion
 for i  = 1:length(op)                      % Assign all low enery partitions (<minVar) to partition 0
-    if op(i) > 1 % ignore wind partition
+    if op(i) > 1                           % ignore wind partition
         [j]    = find(AA==op(i));
-        AA(j)= 0; % set to noise (=0)
+        AA(j)= 0;                          % set to noise (=0)
     end
 end
 N   = length(jn);      % Number of remaining swell partitions
@@ -687,17 +701,15 @@ for i = 1:N            % Re-number remaining, energetic partitions starting at 2
 end
 AA    = BB;
 %
-%%   STEP 6 Merge remaining swell partitions that do not have a valley between them and are separated
+%%   STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated
 %    by less than d_lim (def 90) degrees and f_lim in Hz, and are next to
 %    each other
 %
-N = max(max(AA)); % number of partitions after merging
+N = max(max(AA));  % number of partitions after merging
 fp = zeros(N,1);
 Dp = fp;
 Ep = fp;
-ee = fp;
-dd = fp;
-for i=2:N % ignoring noise partition(=0) and wind partition(=1)
+for i=2:N          % ignoring noise partition(=0) and wind partition(=1)
     Mask1   = AA == i;
     [~,k]   = max(Ef(:).*Mask1(:));
     [I1,J1] = ind2sub(size(AA),k);
@@ -706,21 +718,24 @@ for i=2:N % ignoring noise partition(=0) and wind partition(=1)
     Ep(i)   = Ef(I1,J1);  % Peak energy of partition i
 end
 vmin = zeros(N,N); % minimum energy on the line connecting two partitions peak energies
+dd = zeros(N,N);   % added 1/20/2020
+ee = zeros(N,N);   % added 1/20/2020
 for i=2:N
     for ii = 2:N
-        f1 = fp(i);
-        f2 = fp(ii);
-        d1 = Dp(i);
-        d2 = Dp(ii);
-        ee(ii,i) = min([Ep(i) Ep(ii)]);
-        dd1 = abs(d2 - d1);
-        if dd1 > 180
-            dd1 = dd1 - 360;
+        if i~=ii
+            f1 = fp(i);
+            f2 = fp(ii);
+            d1 = Dp(i);
+            d2 = Dp(ii);
+            ee(ii,i) = min([Ep(i) Ep(ii)]);
+            dd1 = abs(d2 - d1);
+            if dd1 > 180
+                dd1 = dd1 - 360;
+            end
+            dd(ii,i) = dd1;
+            % minimum energy on the line connecting two partitions peak energies
+            vmin(ii,i) = valley_min(Ef,freq,dir,d1,d2,f1,f2,AA);
         end
-        dd(ii,i) = dd1;
-        % minimum energy on the line connecting two partitions peak
-        % energies
-        vmin(ii,i) = valley_min(Ef,freq,dir,d1,d2,f1,f2,AA);
     end
 end
 % Merge partitions that do not have a valley between them (lower than z*ee,
@@ -742,7 +757,7 @@ ic = 1;
 for i  = 2:N
     in = length(find(AA==i));
     if in~=0
-        ic    = ic+1;          % partition counting
+        ic    = ic+1;                % partition counting
         [j]   = find(AA==i);
         BB(j) = ic;
     end
@@ -757,7 +772,7 @@ for i=2:N                            % only swell partitions
     Mask1   = AA == i;
     Sw      = E.*Mask1;
     sumSw(i)= sum(sum(Sw))*df*dth;   % Energy of partition class i
-    Hsig(i)    = 4*sqrt(sumSw(i));                     % Hsig wave height (m)
+    Hsig(i)    = 4*sqrt(sumSw(i));   % Hsig wave height (m)
 end
 % keep only swell partitions with (default Hsig > 0.2 meters)
 for i = 2:N
@@ -773,20 +788,20 @@ ic = 1;
 for i  = 2:N
     in = length(find(AA==i));
     if in~=0
-        ic    = ic+1;               % partition counting
+        ic    = ic+1;                % partition counting
         [j]   = find(AA==i);
         BB(j) = ic;
     end
 end
 AA  = BB;
 %
-%% STEP 8 Re-order partitions in terms of energy level in descending order 
-% Partition Number ; Partition type
-%                0 ; Noise
-%                1 ; Wind
-%                2 ; largest (Hsig) swell partition
-%                3 ; 2nd largest Swell partition
-
+%% STEP 8: Re-order partitions in terms of energy level in descending order 
+% Partition # ; Partition type
+%    0        ;   Noise
+%    1        ;   Wind
+%    2        ;   largest (Hsig) swell partition
+%    3        ;   2nd largest Swell partition
+%
 N = max(max(AA));
 sumSw = zeros(N-1,1);
 for i=2:N                              % for each partition
@@ -803,7 +818,7 @@ for i=1:N-1
 end
 AA=BB;
 %
-%% plot
+%% Plot option
 if sw == 999
     figure
     subplot(121)
