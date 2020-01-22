@@ -46,6 +46,9 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 %
 %% Updates
 % 
+%  1/22/2020:  Added check for minimum energy required for at least one
+%              partition to be generated. This avoids flat line spectra.
+%
 %  1/18/2020:  Added comment about data input should not contain the same
 %              direction twice and other minor changes. Also lines
 %              ee=zeros(N,N) and dd=zeros(N,N) were added.
@@ -104,15 +107,24 @@ minSqDist  = (6*df)^2;
 % B = 0.05;    %
 %
 % less sensitive (2-4 partitions)
-A = 4e-5; % 12e-5;    %
+A = 4e-5;    % 12e-5;    %
 B = 0.04;    %
 kappa = 0.4; % Df2 < kappa*df2
-z = 0.4; % 0.65;    % minimum between peaks EM > z*El where El is the smaller Ep of the two partitions
+% minimum between peaks EM > z*El where El is the smaller Ep of the two partitions
+z = 0.4;     % 0.65; 
 %
 % optional input windminf
 if nargin> 4
     windminf = fw; % input windminf (fw)
 end
+%% STEP 0: Check spectrum quality for partioning - 1/22/2020 Update
+% A requirement is set that the spectrum has the minimum reuired energy for a single partition
+%
+minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
+if sum(E(:) - min(E(:))) < minE_allowed 
+    error('spectrum has not enough energy for partitioning')
+end
+
 %% STEP 1: Filter measured spectra using double convolution
 %
 Ef = filterDirWavespec(E,2,navg);
