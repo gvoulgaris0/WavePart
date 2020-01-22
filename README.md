@@ -8,7 +8,9 @@ Authors:
   University of South Carolina  
   Columbia, SC, 29205, USA.  
   
-Latest Code Update: 1/22/2020
+Code Updates:
+  -  1/22/2020 - partition.m was updated to catch cases when a flat spectrum is given as input.
+  -  1/21/2020 - waveparams.m - the Hrms estimate was incorrect; also the mean direction now is given in -180 to +180deg range
   
  Citation:  
    -  Douglas, C. and Voulgaris, G., 2019, WavePART: MATLAB(r) software for the partition of directional ocean wave spectra.: Zenodo, doi:10.5281/zenodo.2638500. 
