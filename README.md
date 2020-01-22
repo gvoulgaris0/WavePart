@@ -8,6 +8,8 @@ Authors:
   University of South Carolina  
   Columbia, SC, 29205, USA.  
   
+Latest Code Update: 1/22/2020
+  
  Citation:  
    -  Douglas, C. and Voulgaris, G., 2019, WavePART: MATLAB(r) software for the partition of directional ocean wave spectra.: Zenodo, doi:10.5281/zenodo.2638500. 
 
