@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-18"><meta name="DC.source" content="partition.m"><style type="text/css">
+      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-22"><meta name="DC.source" content="partition.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li><li><a href="#10">Set parameters for analysis</a></li><li><a href="#11">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#12">STEP 2: Identify all partitions possible</a></li><li><a href="#13">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#14">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#15">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#16">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#17">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#18">STEP 8: Re-order partitions in terms of energy level in descending order</a></li><li><a href="#19">Plot option</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li><li><a href="#10">Set parameters for analysis</a></li><li><a href="#11">STEP 0: Check spectrum quality for partioning - 1/22/2020 Update</a></li><li><a href="#12">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#13">STEP 2: Identify all partitions possible</a></li><li><a href="#14">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#15">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#16">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#17">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#18">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#19">STEP 8: Re-order partitions in terms of energy level in descending order</a></li><li><a href="#20">Plot option</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 </pre><p>[AA,Ef]=partition(freq,dir,E,[wfc],[fw],[sw])</p><p>Function to partition a directional wave spectrum in to different components. The partitions are given in energy descenting order. Partitions identified by the watershed function are modified following mostly the method described in:</p><p>Hanson and Phillips (2001) Automated Analysis of Ocean Surface Directional Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.</p><h2 id="3">Inputs</h2><pre>freq  - Frequency array of directional spectrum (Hz)
 dir   - Directional array of spectrum (degs)
         NOTE: the same direction should not appear twice (i.e. no 0 &amp; 360o
@@ -90,7 +90,8 @@ peakspread.m        - peak spreading (df2) calculation as in Hanson and Phillips
 valley_min.m        - lowest valley between partitions as in Hanson and Phillips (2001)
 polarPcolor.m       - pcolor in polar coordinates developed by E. Cheynet (2019).
                        (https://www.mathworks.com/matlabcentral/fileexchange/49040-pcolor-in-polar-coordinates)
-                       MATLAB Central File Exchange. Retrieved March 16, 2019.</pre><h2 id="6">Updates</h2><pre>1/18/2020:  Added comment about data input should not contain the same
+                       MATLAB Central File Exchange. Retrieved March 16, 2019.</pre><h2 id="6">Updates</h2><pre>1/22/2020:  Added check for minimum energy required for at least one
+            partition to be generated. This avoids flat line spectra.</pre><pre>1/18/2020:  Added comment about data input should not contain the same
             direction twice and other minor changes. Also lines
             ee=zeros(N,N) and dd=zeros(N,N) were added.</pre><h2 id="7">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
@@ -124,18 +125,23 @@ minSqDist  = (6*df)^2;
 <span class="comment">% B = 0.05;    %</span>
 <span class="comment">%</span>
 <span class="comment">% less sensitive (2-4 partitions)</span>
-A = 4e-5; <span class="comment">% 12e-5;    %</span>
+A = 4e-5;    <span class="comment">% 12e-5;    %</span>
 B = 0.04;    <span class="comment">%</span>
 kappa = 0.4; <span class="comment">% Df2 &lt; kappa*df2</span>
-z = 0.4; <span class="comment">% 0.65;    % minimum between peaks EM &gt; z*El where El is the smaller Ep of the two partitions</span>
+<span class="comment">% minimum between peaks EM &gt; z*El where El is the smaller Ep of the two partitions</span>
+z = 0.4;     <span class="comment">% 0.65;</span>
 <span class="comment">%</span>
 <span class="comment">% optional input windminf</span>
 <span class="keyword">if</span> nargin&gt; 4
     windminf = fw; <span class="comment">% input windminf (fw)</span>
 <span class="keyword">end</span>
-</pre><h2 id="11">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
+</pre><h2 id="11">STEP 0: Check spectrum quality for partioning - 1/22/2020 Update</h2><p>A requirement is set that the spectrum has the minimum reuired energy for a single partition</p><pre class="codeinput">minE_allowed = A/(max(freq).^4+B); <span class="comment">% min energy for peak at highest frequency of data</span>
+<span class="keyword">if</span> sum(E(:) - min(E(:))) &lt; minE_allowed
+    error(<span class="string">'spectrum has not enough energy for partitioning'</span>)
+<span class="keyword">end</span>
+</pre><h2 id="12">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
 <span class="comment">%</span>
-</pre><h2 id="12">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
+</pre><h2 id="13">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
 [m,n]   = size(AA);
 N       = double(max(max(AA)));   <span class="comment">% number of partitions identified</span>
 <span class="comment">% calculate partition parameters</span>
@@ -151,7 +157,7 @@ Ep = fp;
     Ep(i)   = Ef(I1,J1);  <span class="comment">% Peak energy of partition i</span>
 <span class="keyword">end</span>
 <span class="comment">%</span>
-</pre><h2 id="13">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</h2><pre class="codeinput">Ep(fp&lt;windminf) = 0;    <span class="comment">% ignore partitions with fp &lt; the wind frequency mininimum (windminf)</span>
+</pre><h2 id="14">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</h2><pre class="codeinput">Ep(fp&lt;windminf) = 0;    <span class="comment">% ignore partitions with fp &lt; the wind frequency mininimum (windminf)</span>
 <span class="keyword">if</span> sum(Ep) &lt; 0          <span class="comment">% if there are no wind partitions throw error</span>
     error(<span class="string">'no wind partitions, try reducing input fw (ex. 0.1 Hz)'</span>)
 <span class="keyword">end</span>
@@ -210,7 +216,7 @@ ic = 1;
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="14">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</h2><pre class="codeinput">N  = max(max(AA));
+</pre><h2 id="15">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</h2><pre class="codeinput">N  = max(max(AA));
 fp = zeros(N,1);
 Dp = fp;
 df2= fp;
@@ -264,7 +270,7 @@ ic = 1;
 <span class="keyword">end</span>
 AA = BB;
 <span class="comment">%</span>
-</pre><h2 id="15">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</h2><pre class="codeinput">N = max(max(AA)); <span class="comment">% number of partitions after merging</span>
+</pre><h2 id="16">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</h2><pre class="codeinput">N = max(max(AA)); <span class="comment">% number of partitions after merging</span>
 <span class="comment">% find energy included in each partition.</span>
 P = zeros(N,1);
 fp = P;
@@ -293,7 +299,7 @@ BB    = AA;
 <span class="keyword">end</span>
 AA    = BB;
 <span class="comment">%</span>
-</pre><h2 id="16">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</h2><pre>  by less than d_lim (def 90) degrees and f_lim in Hz, and are next to
+</pre><h2 id="17">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</h2><pre>  by less than d_lim (def 90) degrees and f_lim in Hz, and are next to
   each other</pre><pre class="codeinput">N = max(max(AA));  <span class="comment">% number of partitions after merging</span>
 fp = zeros(N,1);
 Dp = fp;
@@ -353,7 +359,7 @@ ic = 1;
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="17">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA));                <span class="comment">% number of partitions</span>
+</pre><h2 id="18">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</h2><pre class="codeinput">N     = max(max(AA));                <span class="comment">% number of partitions</span>
 sumSw   = zeros(N,1);
 Hsig    = fp;
 <span class="keyword">for</span> i=2:N                            <span class="comment">% only swell partitions</span>
@@ -383,7 +389,7 @@ ic = 1;
 <span class="keyword">end</span>
 AA  = BB;
 <span class="comment">%</span>
-</pre><h2 id="18">STEP 8: Re-order partitions in terms of energy level in descending order</h2><p>Partition # ; Partition type    0        ;   Noise    1        ;   Wind    2        ;   largest (Hsig) swell partition    3        ;   2nd largest Swell partition</p><pre class="codeinput">N = max(max(AA));
+</pre><h2 id="19">STEP 8: Re-order partitions in terms of energy level in descending order</h2><p>Partition # ; Partition type    0        ;   Noise    1        ;   Wind    2        ;   largest (Hsig) swell partition    3        ;   2nd largest Swell partition</p><pre class="codeinput">N = max(max(AA));
 sumSw = zeros(N-1,1);
 <span class="keyword">for</span> i=2:N                              <span class="comment">% for each partition</span>
     Mask1 = AA == i;
@@ -399,7 +405,7 @@ BB         = AA;
 <span class="keyword">end</span>
 AA=BB;
 <span class="comment">%</span>
-</pre><h2 id="19">Plot option</h2><pre class="codeinput"><span class="keyword">if</span> sw == 999
+</pre><h2 id="20">Plot option</h2><pre class="codeinput"><span class="keyword">if</span> sw == 999
     figure
     subplot(121)
     surf(freq',dir',Ef',AA')
@@ -463,6 +469,9 @@ function [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 %
 %% Updates
 % 
+%  1/22/2020:  Added check for minimum energy required for at least one
+%              partition to be generated. This avoids flat line spectra.
+%
 %  1/18/2020:  Added comment about data input should not contain the same
 %              direction twice and other minor changes. Also lines
 %              ee=zeros(N,N) and dd=zeros(N,N) were added.
@@ -521,15 +530,24 @@ minSqDist  = (6*df)^2;
 % B = 0.05;    %
 %
 % less sensitive (2-4 partitions)
-A = 4e-5; % 12e-5;    %
+A = 4e-5;    % 12e-5;    %
 B = 0.04;    %
 kappa = 0.4; % Df2 < kappa*df2
-z = 0.4; % 0.65;    % minimum between peaks EM > z*El where El is the smaller Ep of the two partitions
+% minimum between peaks EM > z*El where El is the smaller Ep of the two partitions
+z = 0.4;     % 0.65; 
 %
 % optional input windminf
 if nargin> 4
     windminf = fw; % input windminf (fw)
 end
+%% STEP 0: Check spectrum quality for partioning - 1/22/2020 Update
+% A requirement is set that the spectrum has the minimum reuired energy for a single partition
+%
+minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
+if sum(E(:) - min(E(:))) < minE_allowed 
+    error('spectrum has not enough energy for partitioning')
+end
+
 %% STEP 1: Filter measured spectra using double convolution
 %
 Ef = filterDirWavespec(E,2,navg);
