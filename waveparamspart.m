@@ -19,7 +19,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 %  D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 %  Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%  H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%  H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively
 %
 %% Uses 
 %  dispersion.m  - function to solve the dispersion equation for shallow waters
@@ -30,6 +30,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  University of South Carolina, Columbia, SC, USA
 %
 %% Updates
+%  01/22/2020 - Corrected the formula for estimating fm
 %  01/21/2020 - Corrections in the formulas estimating Hrms and Dm
 %
 %% Copyright 2019 Douglas Cahl, George Voulgaris
@@ -76,7 +77,7 @@ for i = 1:Nw1                                 % for each partition i
     Et      = sum(sum(Epart))*df*dth;         % \int Si(f,theta)
     Hrms    = 2*sqrt(2*Et);                   % Hrms wave height (m) - 1/21/2020
     Hsig    = 4*sqrt(Et);                     % Hsig wave height (m)
-    fm      = sum(sum(Epart,2)./freq)*df*dth; % Mean freq. of Si
+    fm      = sum(sum(Epart,2).*freq)/sum(sum(Epart));  % Mean freq. of Si - 1/22/2020
     f(1:2,i)= [fm fp];
     sino    = sum(sum(Epart.*sind(the)))/Et;  % normalised
     coso    = sum(sum(Epart.*cosd(the)))/Et;  %
