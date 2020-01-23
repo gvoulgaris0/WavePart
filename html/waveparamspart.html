@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>waveparamspart</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-21"><meta name="DC.source" content="waveparamspart.m"><style type="text/css">
+      --><title>waveparamspart</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-22"><meta name="DC.source" content="waveparamspart.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -77,9 +77,10 @@ AA   = Matrix same dimensions as E indentifying partition element by a number.
 h    = water depth [Optional]</pre><h2 id="4">Outputs</h2><pre>f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
+H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
-University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Updates</h2><pre>01/21/2020 - Corrections in the formulas estimating Hrms and Dm</pre><h2 id="8">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="9">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;5 || isempty(h)
+University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Updates</h2><pre>01/22/2020 - Corrected the formula for estimating fm
+01/21/2020 - Corrections in the formulas estimating Hrms and Dm</pre><h2 id="8">Copyright 2019 Douglas Cahl, George Voulgaris</h2><p>This file is part of WavePart.</p><p>WavePart is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p><p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.</p><p>You should have received a copy of the GNU General Public License along with this program.  If not, see <a href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>.</p><h2 id="9">Main Function</h2><pre class="codeinput"><span class="keyword">if</span> nargin&lt;5 || isempty(h)
     h=1000;   <span class="comment">% Deep water conditions</span>
 <span class="keyword">end</span>
 g   = 9.81;
@@ -105,7 +106,7 @@ the  = repmat(dir(:)',nf,1);
     Et      = sum(sum(Epart))*df*dth;         <span class="comment">% \int Si(f,theta)</span>
     Hrms    = 2*sqrt(2*Et);                   <span class="comment">% Hrms wave height (m) - 1/21/2020</span>
     Hsig    = 4*sqrt(Et);                     <span class="comment">% Hsig wave height (m)</span>
-    fm      = sum(sum(Epart,2)./freq)*df*dth; <span class="comment">% Mean freq. of Si</span>
+    fm      = sum(sum(Epart,2).*freq)/sum(sum(Epart));  <span class="comment">% Mean freq. of Si - 1/22/2020</span>
     f(1:2,i)= [fm fp];
     sino    = sum(sum(Epart.*sind(the)))/Et;  <span class="comment">% normalised</span>
     coso    = sum(sum(Epart.*cosd(the)))/Et;  <span class="comment">%</span>
@@ -143,7 +144,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 %  D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 %  Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%  H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%  H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively
 %
 %% Uses 
 %  dispersion.m  - function to solve the dispersion equation for shallow waters
@@ -154,6 +155,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  University of South Carolina, Columbia, SC, USA
 %
 %% Updates
+%  01/22/2020 - Corrected the formula for estimating fm
 %  01/21/2020 - Corrections in the formulas estimating Hrms and Dm
 %
 %% Copyright 2019 Douglas Cahl, George Voulgaris
@@ -200,7 +202,7 @@ for i = 1:Nw1                                 % for each partition i
     Et      = sum(sum(Epart))*df*dth;         % \int Si(f,theta)
     Hrms    = 2*sqrt(2*Et);                   % Hrms wave height (m) - 1/21/2020
     Hsig    = 4*sqrt(Et);                     % Hsig wave height (m)
-    fm      = sum(sum(Epart,2)./freq)*df*dth; % Mean freq. of Si
+    fm      = sum(sum(Epart,2).*freq)/sum(sum(Epart));  % Mean freq. of Si - 1/22/2020
     f(1:2,i)= [fm fp];
     sino    = sum(sum(Epart.*sind(the)))/Et;  % normalised
     coso    = sum(sum(Epart.*cosd(the)))/Et;  %
