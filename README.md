@@ -9,6 +9,7 @@ Authors:
   Columbia, SC, 29205, USA.  
   
 Code Updates: 
+  - 1/22/2020 - waveparams.m - the mean freq. (fm) estimate was incorrect; it has been corrected.
   - 1/22/2020  - partition.m was updated to catch cases when a flat spectrum is given as input.
   - 1/22/2020 - master_partition.m was updated so that it calls waveparams.m with the correct number of outputs.
   - 1/21/2020  - waveparams.m - the Hrms estimate was incorrect; also the mean direction now is given in -180 to +180 deg range 
