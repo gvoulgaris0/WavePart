@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-22"><meta name="DC.source" content="partition.m"><style type="text/css">
+      --><title>partition</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-24"><meta name="DC.source" content="partition.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,7 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li><li><a href="#10">Set parameters for analysis</a></li><li><a href="#11">STEP 0: Check spectrum quality for partioning - 1/22/2020 Update</a></li><li><a href="#12">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#13">STEP 2: Identify all partitions possible</a></li><li><a href="#14">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#15">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#16">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#17">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#18">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#19">STEP 8: Re-order partitions in terms of energy level in descending order</a></li><li><a href="#20">Plot option</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">partition.m</a></li><li><a href="#3">Inputs</a></li><li><a href="#4">Outputs</a></li><li><a href="#5">Uses</a></li><li><a href="#6">Updates</a></li><li><a href="#7">Authors</a></li><li><a href="#8">Copyright 2019 Douglas Cahl, George Voulgaris</a></li><li><a href="#9">Main Function</a></li><li><a href="#10">Set parameters for analysis</a></li><li><a href="#11">STEP 1: Filter measured spectra using double convolution</a></li><li><a href="#12">STEP 1a: Check spectrum quality for partioning - 1/22/2020 Update</a></li><li><a href="#13">STEP 2: Identify all partitions possible</a></li><li><a href="#14">STEP 3: Define wind partition (wfc option) and merge all partitions within wind region</a></li><li><a href="#15">STEP 4: Merge remaining swell partitions that are too close together (df2 &lt; k*Df2 or minSqDist &lt; (6*df)^2) and less than d_lim apart in direction</a></li><li><a href="#16">STEP 5: Select only partitions above noise level and partitions below 0.6 Hz (e &lt;= A/(fp^4+B))</a></li><li><a href="#17">STEP 6: Merge remaining swell partitions that do not have a valley between them and are separated</a></li><li><a href="#18">STEP 7 keep only swell partitions with significant waveheight above swell_hs_lim</a></li><li><a href="#19">STEP 8: Re-order partitions in terms of energy level in descending order</a></li><li><a href="#20">Plot option</a></li></ul></div><h2 id="1">partition.m</h2><pre class="codeinput"><span class="keyword">function</span> [AA,Ef]=partition(freq,dir,E,wfc,fw,sw)
 </pre><p>[AA,Ef]=partition(freq,dir,E,[wfc],[fw],[sw])</p><p>Function to partition a directional wave spectrum in to different components. The partitions are given in energy descenting order. Partitions identified by the watershed function are modified following mostly the method described in:</p><p>Hanson and Phillips (2001) Automated Analysis of Ocean Surface Directional Wave Spectra. Journal of Oceanic and Atmospheric Technology, 18, 278-293.</p><h2 id="3">Inputs</h2><pre>freq  - Frequency array of directional spectrum (Hz)
 dir   - Directional array of spectrum (degs)
         NOTE: the same direction should not appear twice (i.e. no 0 &amp; 360o
@@ -135,11 +135,14 @@ z = 0.4;     <span class="comment">% 0.65;</span>
 <span class="keyword">if</span> nargin&gt; 4
     windminf = fw; <span class="comment">% input windminf (fw)</span>
 <span class="keyword">end</span>
-</pre><h2 id="11">STEP 0: Check spectrum quality for partioning - 1/22/2020 Update</h2><p>A requirement is set that the spectrum has the minimum reuired energy for a single partition</p><pre class="codeinput">minE_allowed = A/(max(freq).^4+B); <span class="comment">% min energy for peak at highest frequency of data</span>
-<span class="keyword">if</span> sum(E(:) - min(E(:))) &lt; minE_allowed
-    error(<span class="string">'spectrum has not enough energy for partitioning'</span>)
+</pre><h2 id="11">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
+<span class="comment">%</span>
+</pre><h2 id="12">STEP 1a: Check spectrum quality for partioning - 1/22/2020 Update</h2><p>A requirement is set that the spectrum has the minimum reuired energy for a single partition</p><pre class="codeinput">minE_allowed = A/(max(freq).^4+B); <span class="comment">% min energy for peak at highest frequency of data</span>
+<span class="keyword">if</span> sum(Ef(:) - min(Ef(:))) &lt; minE_allowed
+    AA=zeros(size(Ef)); <span class="comment">% All is noise</span>
+    disp(<span class="string">'Spectrum does not have enough energy for partitioning'</span>)
+    <span class="keyword">return</span>
 <span class="keyword">end</span>
-</pre><h2 id="12">STEP 1: Filter measured spectra using double convolution</h2><pre class="codeinput">Ef = filterDirWavespec(E,2,navg);
 <span class="comment">%</span>
 </pre><h2 id="13">STEP 2: Identify all partitions possible</h2><p>AA = watershed_ww3(Ef);        % WW3 watershed algorithm function (using mex is faster)</p><pre class="codeinput">AA      = watershed_ww3_mex(Ef); <span class="comment">% WW3 watershed algorithm (suggested mex)</span>
 [m,n]   = size(AA);
@@ -540,17 +543,19 @@ z = 0.4;     % 0.65;
 if nargin> 4
     windminf = fw; % input windminf (fw)
 end
-%% STEP 0: Check spectrum quality for partioning - 1/22/2020 Update
-% A requirement is set that the spectrum has the minimum reuired energy for a single partition
-%
-minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
-if sum(E(:) - min(E(:))) < minE_allowed 
-    error('spectrum has not enough energy for partitioning')
-end
-
 %% STEP 1: Filter measured spectra using double convolution
 %
 Ef = filterDirWavespec(E,2,navg);
+%
+%% STEP 1a: Check spectrum quality for partioning - 1/22/2020 Update
+% A requirement is set that the spectrum has the minimum reuired energy for a single partition
+%
+minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
+if sum(Ef(:) - min(Ef(:))) < minE_allowed 
+    AA=zeros(size(Ef)); % All is noise
+    disp('Spectrum does not have enough energy for partitioning')
+    return
+end
 %
 %% STEP 2: Identify all partitions possible
 %

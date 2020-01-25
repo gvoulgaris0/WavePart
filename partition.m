@@ -117,17 +117,19 @@ z = 0.4;     % 0.65;
 if nargin> 4
     windminf = fw; % input windminf (fw)
 end
-%% STEP 0: Check spectrum quality for partioning - 1/22/2020 Update
-% A requirement is set that the spectrum has the minimum reuired energy for a single partition
-%
-minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
-if sum(E(:) - min(E(:))) < minE_allowed 
-    error('spectrum has not enough energy for partitioning')
-end
-
 %% STEP 1: Filter measured spectra using double convolution
 %
 Ef = filterDirWavespec(E,2,navg);
+%
+%% STEP 1a: Check spectrum quality for partioning - 1/22/2020 Update
+% A requirement is set that the spectrum has the minimum reuired energy for a single partition
+%
+minE_allowed = A/(max(freq).^4+B); % min energy for peak at highest frequency of data
+if sum(Ef(:) - min(Ef(:))) < minE_allowed 
+    AA=zeros(size(Ef)); % All is noise
+    disp('Spectrum does not have enough energy for partitioning')
+    return
+end
 %
 %% STEP 2: Identify all partitions possible
 %

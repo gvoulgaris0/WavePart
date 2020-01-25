@@ -30,6 +30,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  University of South Carolina, Columbia, SC, USA
 %
 %% Updates
+%  01/23/2020 - Changed formulas for estimating fp and Dp using weighted mean with n=5
 %  01/22/2020 - Corrected the formula for estimating fm
 %  01/21/2020 - Corrections in the formulas estimating Hrms and Dm
 %
@@ -66,29 +67,34 @@ dth = dir(2)-dir(1);
                     % nf = no of freq. bins, nd (~)= no of direction bins
 the  = repmat(dir(:)',nf,1);
 %
-for i = 1:Nw1                                 % for each partition i
-    Mask1   = AA == i;                        
-    Epart   = E.*Mask1;                       % Si(f,theta)
-    [~,k]   = max(Epart(:));
-    [I1,J1] = ind2sub(size(AA),k);
-    fp      = freq(I1);                       % Peak frequency for Si
-    Dp      = dir(J1);                        % Peak direction for Si
-    Ep      = E(I1,J1);                       % Peak energy level for Si
-    Et      = sum(sum(Epart))*df*dth;         % \int Si(f,theta)
-    Hrms    = 2*sqrt(2*Et);                   % Hrms wave height (m) - 1/21/2020
-    Hsig    = 4*sqrt(Et);                     % Hsig wave height (m)
-    fm      = sum(sum(Epart,2).*freq)/sum(sum(Epart));  % Mean freq. of Si - 1/22/2020
-    f(1:2,i)= [fm fp];
-    sino    = sum(sum(Epart.*sind(the)))/Et;  % normalised
-    coso    = sum(sum(Epart.*cosd(the)))/Et;  %
-    Dm      = atan2d(sino,coso);              % Mean Direction of Si - 1/21/2020
-    epsilon = sqrt(1-(sino^2+coso^2));
-    sigma   = (1+0.1547*epsilon^3)/sin(epsilon);% Directional spread of Si
-    D(1:3,i)= [Dm,Dp,sigma];
+for i = 1:Nw1                                    % for each partition i
+    Mask1    = AA == i;                        
+    Epart    = E.*Mask1;                         % Si(f,theta)
+    [~,k]    = max(Epart(:));
+    [I1,J1]  = ind2sub(size(AA),k);
+%   Dp       = dir(J1);                          % Peak (max E) direction for Si
+    Ep       = E(I1,J1);                         % Peak energy level for Si
+    Et       = sum(sum(Epart))*df*dth;           % \int Si(f,theta)
+    Hrms     = 2*sqrt(2*Et);                     % Hrms wave height (m) - 1/21/2020
+    Hsig     = 4*sqrt(Et);                       % Hsig wave height (m)
+    fm       = sum(sum(Epart,2).*freq)/sum(sum(Epart,2));% Mean freq. of Si - 1/22/2020
+%   fp       = freq(I1);                         % Peak (max E) frequency bin for Si - 1/23/2020
+	fp       = sum(sum(Epart.^5,2).*freq)/sum(sum(Epart.^5,2)); % Weighted Peak freq. using n=5 power 1/23/2020
+    f(1:2,i) = [fm fp];
+    sino     = sum(sum(Epart.*sind(the)))/sum(sum(Epart));  % normalised
+    coso     = sum(sum(Epart.*cosd(the)))/sum(sum(Epart));  %
+    Dm       = atan2d(sino,coso);                % Mean Direction of Si - 1/21/2020
+%   Dp       = dir(J1);                          % Peak (max E) direction for Si
+	sino5    = sum(sum(Epart.^5.*sind(the)))/sum(sum(Epart.^5));  % normalised to 5th power
+    coso5    = sum(sum(Epart.^5.*cosd(the)))/sum(sum(Epart.^5));  %
+	Dp       = atan2d(sino5,coso5);              % Weighted Peak Dir. using n=5 power - 1/23/2020
+    epsilon  = sqrt(1-(sino^2+coso^2));
+    sigma    = (1+0.1547*epsilon^3)/sin(epsilon);% Directional spread of Si
+    D(1:3,i) = [Dm,Dp,sigma];
     Ee(1:2,i)= [Et,Ep];
-    kh      = dispersion((2*pi*fp).^2*h/g);
-    Lp      = 2*pi/(kh/h);
-    psi     = Hsig/Lp;                        % Significant slope (Huang 1986)
-    H(1:3,i)= [Hrms,Hsig,psi];
+    kh       = dispersion((2*pi*fp).^2*h/g);
+    Lp       = 2*pi/(kh/h);
+    psi      = Hsig/Lp;                          % Significant slope (Huang 1986)
+    H(1:3,i) = [Hrms,Hsig,psi];
 end
 end
