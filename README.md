@@ -1,4 +1,5 @@
-# WavePart
+# WavePart ![image](https://user-images.githubusercontent.com/48567321/126871118-68ae6e82-15fe-48e5-ac1e-2d1d0b673a9b.png)
+
 
 Set of Matlab(r) functions for the partition of directional wave spectra to its wind and different swell components. The partitions are initially identified using a watershed defining algorithm  and then are modified following mostly the method described in Hanson and Phillips (2001).
 
