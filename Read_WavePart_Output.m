@@ -9,9 +9,9 @@
 % time-series is provided. The user shoudl adjust this script to fit her/his requirements
 %
 %
-%% Load the datafile 
+%% Load the datafile if data not already in the workspace
 %
-load ..\data\waveparamsoutput.mat  % replace with your datafile that stores the results of wavepartition
+% load ..\data\waveparamsoutput.mat  % replace with your datafile that stores the results of wavepartition
 %  
 %% Create time series from each data containing cell
 %
@@ -60,12 +60,22 @@ Hrms(Hrms==0)=NaN;
 Hsig(Hsig==0)=NaN;
 psi(psi==0)=NaN;
 
-%% Example of plotting
+%% Example of plotting frequencies
 %
 figure
 plot(fm(:,1:2)) % Plot values for partitions 1 (swell) and 2 (wind wave)
 hold on
 plot(fp(:,1:2))
 legend('fm - #1','fm - #2','fp - #1', 'fp - #2')
-title('mean and peak frequency for partitions 1 and 2')
+title('Mean and Peak frequency for Partitions #1 and #2')
 ylabel('Frequency (Hz)')
+
+%% Example of plotting directions
+%
+figure
+plot(Dm(:,1:2)) % Plot values for partitions 1 (swell) and 2 (wind wave)
+hold on
+plot(Dp(:,1:2))
+legend('Dm - #1','Dm - #2','Dp - #1', 'Dp - #2')
+title('Mean and Peak Directions for Partitions #1 and #2')
+ylabel('Direction (^o)')
