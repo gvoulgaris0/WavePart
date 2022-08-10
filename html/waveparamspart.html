@@ -77,7 +77,7 @@ AA   = Matrix same dimensions as E indentifying partition element by a number.
 h    = water depth [Optional]</pre><h2 id="4">Outputs</h2><pre>f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
+H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively</pre><h2 id="5">Uses</h2><pre>dispersion.m  - function to solve the dispersion equation for shallow waters</pre><h2 id="6">Authors</h2><pre>Douglas Cahl and George Voulgaris
 School of the Earth, Ocean and Environment
 University of South Carolina, Columbia, SC, USA</pre><h2 id="7">Updates</h2><pre>01/23/2020 - Changed formulas for estimating fp and Dp using weighted mean with n=5
 01/22/2020 - Corrected the formula for estimating fm
@@ -150,7 +150,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 %  D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 %  Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%  H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%  H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively
 %
 %% Uses 
 %  dispersion.m  - function to solve the dispersion equation for shallow waters

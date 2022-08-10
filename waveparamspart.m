@@ -19,7 +19,7 @@ function [f,D,Ee,H] = waveparamspart(E,freq,dir,AA,h)
 %  f(2,n) = [fm fp] Mean and Peak frequency of each partition n (Hz)
 %  D(3,n) = [Dm Dp sigma] Mean and Peak direction (degs) and Directional spead of each partition n
 %  Ee(2,n)= [Et Ep] Total and Peak energy of each partition n (m2 and m2/Hz/degs)
-%  H(3,n) = [Hrms Hsig psi] rms and significant wave height (m) and significant slope
+%  H(3,n) = [Hrms Hsig psi] rms wave height (m), significant wave height (m), and significant slope, respectively
 %
 %% Uses 
 %  dispersion.m  - function to solve the dispersion equation for shallow waters
